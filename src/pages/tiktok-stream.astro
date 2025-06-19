@@ -1,10 +1,9 @@
 ---
-// Sound Factory NYC - Three-Mode Stream Platform
+// Sound Factory NYC - TikTok Stream Platform
 import BlackGrid from '../components/BlackGrid.astro';
 import SimpleReactionSystem from '../components/dynamic/reactions/SimpleReactionSystem.astro';
 import SimpleGroupChat from '../components/SimpleGroupChat.astro';
 import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
-import ModeManager from '../components/ModeManager.jsx';
 ---
 
 <html lang="en">
@@ -65,9 +64,6 @@ import ModeManager from '../components/ModeManager.jsx';
     </style>
 </head>
 <body>
-    <!-- MODE MANAGER - Handles three-way switching -->
-    <ModeManager client:load />
-
     <!-- TIKTOK PLAYER CONTAINER -->
     <div id="tikTokContainer" class="player-container">
         <NextLevelTikTokPlayer client:load />
