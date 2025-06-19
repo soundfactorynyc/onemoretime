@@ -1,9 +1,8 @@
 ---
-// Sound Factory NYC - TikTok Stream Integration
+// Sound Factory NYC - Clean Stream Page
 import BlackGrid from '../components/BlackGrid.astro';
 import SimpleReactionSystem from '../components/dynamic/reactions/SimpleReactionSystem.astro';
 import SimpleGroupChat from '../components/SimpleGroupChat.astro';
-import RedTikTokPlayer from '../components/RedTikTokPlayer.astro';
 ---
 
 <html lang="en">
@@ -11,7 +10,7 @@ import RedTikTokPlayer from '../components/RedTikTokPlayer.astro';
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Sound Factory NYC - TikTok Live Stream</title>
+    <title>Sound Factory NYC - Live Stream</title>
     
     <style>
         * {
@@ -51,98 +50,9 @@ import RedTikTokPlayer from '../components/RedTikTokPlayer.astro';
             pointer-events: none;
         }
         
-        /* TikTok live indicator */
-        .tiktok-live-indicator {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: linear-gradient(45deg, #ff0050, #ff006e);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 1003;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: #ffffff;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.2); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        
-        /* TikTok viewer count */
-        .tiktok-viewers {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 1003;
-            backdrop-filter: blur(10px);
-        }
-        
-        /* TikTok Player Toggle */
-        .tiktok-toggle {
-            position: fixed;
-            top: 70px;
-            right: 20px;
-            background: rgba(255, 0, 110, 0.8);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 2001;
-            backdrop-filter: blur(10px);
-            border: none;
-            cursor: pointer;
-        }
-        
-        .tiktok-toggle:hover {
-            background: rgba(255, 0, 110, 1);
-        }
-        
-        /* Hide TikTok Player when toggled */
-        .next-level-tiktok-player.hidden {
-            display: none !important;
-        }
     </style>
 </head>
 <body>
-    <!-- TikTok Live Indicators -->
-    <div class="tiktok-live-indicator">
-        <span class="live-dot"></span>
-        LIVE on TikTok
-    </div>
-    
-    <div class="tiktok-viewers">
-        👁️ 1.2K watching
-    </div>
-    
-    <!-- TikTok Player Toggle -->
-    <button class="tiktok-toggle" id="tiktokToggle">
-        📱 Toggle Player
-    </button>
-
-    <!-- ADVANCED RED TIKTOK PLAYER -->
-    <RedTikTokPlayer />
-    
     <!-- Main Sound Factory Grid -->
     <BlackGrid 
         wsUrl="ws://localhost:8080"
@@ -157,33 +67,6 @@ import RedTikTokPlayer from '../components/RedTikTokPlayer.astro';
     <SimpleGroupChat />
 
     <script>
-        // TikTok viewer count animation
-        let viewerCount = 1200;
-        const viewerElement = document.querySelector('.tiktok-viewers');
-        
-        setInterval(() => {
-            const change = Math.floor(Math.random() * 20) - 10;
-            viewerCount = Math.max(100, viewerCount + change);
-            const formattedCount = viewerCount > 1000 ? 
-                (viewerCount / 1000).toFixed(1) + 'K' : 
-                viewerCount.toString();
-            if (viewerElement) {
-                viewerElement.textContent = `👁️ ${formattedCount} watching`;
-            }
-        }, 3000);
-        
-        // TikTok Player Toggle
-        const tiktokToggle = document.getElementById('tiktokToggle');
-        const tiktokPlayer = document.querySelector('.next-level-tiktok-player');
-        let playerVisible = true;
-        
-        if (tiktokToggle && tiktokPlayer) {
-            tiktokToggle.addEventListener('click', () => {
-                playerVisible = !playerVisible;
-                tiktokPlayer.classList.toggle('hidden', !playerVisible);
-                tiktokToggle.textContent = playerVisible ? '📱 Hide Player' : '📱 Show Player';
-            });
-        }
     </script>
 </body>
 </html>
