@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Music, Sparkles, Volume2, VolumeX, ChevronUp, ChevronDown, Zap, Eye, TrendingUp, Layers, Brain, Gauge, Star, Flame, Camera, Upload, Plus, Smartphone, Timer, Aperture, Grid, Palette, Clock, Image, Mic, Film, Share, UserPlus } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Music, Sparkles, Volume2, VolumeX, ChevronUp, ChevronDown, Zap, Eye, TrendingUp, Layers, Brain, Gauge, Star, Flame, Camera, Upload, Plus, Smartphone, Timer, Aperture, Palette, Clock, Image, Mic, Film, Share, UserPlus } from 'lucide-react';
 
 const NextLevelTikTokPlayer = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
@@ -34,20 +34,8 @@ const NextLevelTikTokPlayer = () => {
   const containerRef = useRef(null);
   const startY = useRef(0);
 
-  // Function to open grid overlay
-  const openGrid = () => {
-    const fullGridOverlay = document.getElementById('fullGridOverlay');
-    const gridTitle = document.getElementById('gridTitle');
-    
-    if (fullGridOverlay && gridTitle) {
-      gridTitle.textContent = 'Sound Factory Grid';
-      fullGridOverlay.style.display = 'block';
-      setTimeout(() => {
-        fullGridOverlay.style.opacity = '1';
-      }, 10);
-    }
-  };
-
+  // No longer need grid functionality - handled by overlay system
+  
   // Listen for chat reactions
   useEffect(() => {
     const handleChatReaction = (event) => {
@@ -118,7 +106,7 @@ const NextLevelTikTokPlayer = () => {
     { id: 'hologram', name: 'Hologram', icon: Sparkles, description: '3D projection' },
     { id: 'invisible', name: 'Invisible', icon: Eye, description: 'Disappear' },
     { id: 'portal-jump', name: 'Portal', icon: Aperture, description: 'Create portals' },
-    { id: 'clone-army', name: 'Clone', icon: Grid, description: 'Multiply' },
+    { id: 'clone-army', name: 'Clone', icon: UserPlus, description: 'Multiply' },
     { id: 'reverse-gravity', name: 'Anti-Gravity', icon: Zap, description: 'Defy physics' },
     { id: 'dream-filter', name: 'Dream', icon: Palette, description: 'Surreal' }
   ];
@@ -189,8 +177,8 @@ const NextLevelTikTokPlayer = () => {
 
             {/* Smart Overlay UI */}
             <div className="absolute inset-0">
-              {/* Top Bar with Profile, Like, Follow */}
-              <div className="absolute top-12 left-0 right-0 px-3 z-40">
+              {/* Top Bar with Profile and Description - Moved to very top */}
+              <div className="absolute top-4 left-0 right-0 px-3 z-40">
                 <div className="flex items-center justify-between">
                   {/* Left: User Info */}
                   <div className="flex items-center gap-2">
@@ -202,33 +190,14 @@ const NextLevelTikTokPlayer = () => {
                       <p className="text-white/60 text-[9px]">{current.likes} likes</p>
                     </div>
                   </div>
-                  
-                  {/* Right: Like & Follow */}
+                </div>
+                
+                {/* Video Description and Music - Moved from bottom */}
+                <div className="mt-2 space-y-1">
+                  <p className="text-white/90 text-[11px] drop-shadow-lg leading-tight">{current.description}</p>
                   <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => setLiked(!liked)}
-                      className={`px-3 py-1 rounded-full flex items-center gap-1 transition-all ${
-                        liked ? 'bg-red-500' : 'bg-white/20 backdrop-blur-xl'
-                      }`}
-                    >
-                      <Heart className="w-3 h-3 text-white" fill={liked ? 'white' : 'none'} />
-                      <span className="text-white text-[9px] font-medium">Like</span>
-                    </button>
-                    <button
-                      onClick={() => setFollowing(!following)}
-                      className={`px-3 py-1 rounded-full flex items-center gap-1 transition-all ${
-                        following ? 'bg-white/20' : 'bg-purple-500'
-                      }`}
-                    >
-                      {following ? (
-                        <UserPlus className="w-3 h-3 text-white" />
-                      ) : (
-                        <Plus className="w-3 h-3 text-white" />
-                      )}
-                      <span className="text-white text-[9px] font-medium">
-                        {following ? 'Following' : 'Follow'}
-                      </span>
-                    </button>
+                    <Music className="w-2.5 h-2.5 text-white/80" />
+                    <p className="text-white/80 text-[10px] drop-shadow-lg">{current.music}</p>
                   </div>
                 </div>
                 
@@ -270,17 +239,10 @@ const NextLevelTikTokPlayer = () => {
                 </div>
               )}
 
-              {/* Bottom Info */}
-              <div className="absolute bottom-16 left-3 right-16 space-y-1 z-30">
-                <p className="text-white/90 text-[11px] drop-shadow-lg leading-tight">{current.description}</p>
-                <div className="flex items-center gap-1.5">
-                  <Music className="w-2.5 h-2.5 text-white/80" />
-                  <p className="text-white/80 text-[10px] drop-shadow-lg">{current.music}</p>
-                </div>
-              </div>
 
-              {/* Top Center Actions - Camera, Upload, Effects, Grid */}
-              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 flex items-center gap-3 z-40">
+
+              {/* Top Center Actions - Camera, Upload, Effects - Moved higher to avoid text */}
+              <div className="absolute top-1 left-1/2 transform -translate-x-1/2 flex items-center gap-3 z-40">
                 {/* Camera Button */}
                 <button className="relative group">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg">
@@ -295,16 +257,6 @@ const NextLevelTikTokPlayer = () => {
                   </div>
                 </button>
 
-                {/* Grid Button */}
-                <button
-                  onClick={openGrid}
-                  className="relative group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg">
-                    <Grid className="w-5 h-5 text-white" />
-                  </div>
-                </button>
-
                 {/* Effects Button */}
                 <button
                   onClick={() => setShowEffects(!showEffects)}
@@ -316,8 +268,38 @@ const NextLevelTikTokPlayer = () => {
                 </button>
               </div>
 
-              {/* Right Side Actions - Comment & Share */}
-              <div className="absolute right-2 bottom-24 space-y-3 z-40">
+              {/* Right Side Actions - Like, Follow (oval), Comment & Share */}
+              <div className="absolute right-2 top-4 space-y-2 z-40">
+                {/* Like & Follow Row - Oval shaped buttons at very top */}
+                <div className="flex flex-col gap-1.5">
+                  {/* Like Button - Oval */}
+                  <button
+                    onClick={() => setLiked(!liked)}
+                    className={`px-3 py-1 rounded-full flex items-center gap-1 transition-all ${
+                      liked ? 'bg-red-500' : 'bg-white/20 backdrop-blur-xl'
+                    }`}
+                  >
+                    <Heart className="w-3 h-3 text-white" fill={liked ? 'white' : 'none'} />
+                    <span className="text-white text-[9px] font-medium">Like</span>
+                  </button>
+
+                  {/* Follow Button - Oval */}
+                  <button
+                    onClick={() => setFollowing(!following)}
+                    className={`px-3 py-1 rounded-full flex items-center gap-1 transition-all ${
+                      following ? 'bg-white/20' : 'bg-purple-500'
+                    }`}
+                  >
+                    {following ? (
+                      <UserPlus className="w-3 h-3 text-white" />
+                    ) : (
+                      <Plus className="w-3 h-3 text-white" />
+                    )}
+                    <span className="text-white text-[9px] font-medium">
+                      {following ? 'Following' : 'Follow'}
+                    </span>
+                  </button>
+                </div>
 
                 {/* Comment */}
                 <button className="relative group">
@@ -337,7 +319,7 @@ const NextLevelTikTokPlayer = () => {
               </div>
 
               {/* Effects Panel - Slides from Right */}
-              <div className={`absolute right-0 top-20 bottom-0 bg-black/95 backdrop-blur-xl transition-all duration-500 transform ${showEffects ? 'translate-x-0' : 'translate-x-full'} w-72 z-50 rounded-l-3xl`}>
+              <div className={`absolute right-0 top-4 bottom-0 bg-black/95 backdrop-blur-xl transition-all duration-500 transform ${showEffects ? 'translate-x-0' : 'translate-x-full'} w-72 z-50 rounded-l-3xl`}>
                 <div className="h-full flex flex-col p-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-white font-semibold text-sm flex items-center gap-2">

@@ -56,27 +56,184 @@ import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
 <body>
 
 
-    <!-- Full Screen Grid Overlay -->
-    <div id="fullGridOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; backdrop-filter: blur(20px);">
-        <div style="position: relative; width: 100%; height: 100%;">
-            <!-- Close Grid Button -->
-            <button id="closeGrid" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 12px; border-radius: 50%; font-size: 18px; cursor: pointer; backdrop-filter: blur(10px); z-index: 2001; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-                ×
-            </button>
-            
-            <!-- Grid Title -->
-            <div id="gridTitle" style="position: absolute; top: 20px; left: 20px; color: white; font-size: 16px; font-weight: bold; z-index: 2001; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 8px; backdrop-filter: blur(10px);">
-                Sound Factory Grid
-            </div>
-            
-            <!-- Full Grid Container -->
-            <div id="fullGridContainer" style="width: 100%; height: 100%; padding: 80px 20px 20px;">
-                <BlackGrid 
-                    wsUrl="ws://localhost:8080"
-                    ledRows={64}
-                    ledCols={64}
-                />
-            </div>
+    <!-- OVERLAY GRID SYSTEM -->
+    <div id="harmonyOverlaySystem">
+        <style>
+            /* Overlay System Styles */
+            #harmonyOverlaySystem * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            /* Three numbered buttons - TOP ALIGNED */
+            .overlay-main-button {
+                position: fixed;
+                left: 15px;
+                background: #000000;
+                color: #ffffff;
+                border: 1px solid #333333;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 24px;
+                font-weight: bold;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+
+            .overlay-main-button:hover {
+                background: #1a1a1a;
+                transform: scale(1.1);
+            }
+
+            .overlay-main-button:active {
+                transform: scale(0.9);
+                background: #2a2a2a;
+            }
+
+            /* Button Positions - Moved down from top */
+            .overlay-button-1 { top: 120px; }
+            .overlay-button-2 { top: 180px; }
+            .overlay-button-3 { top: 240px; }
+
+            /* Grid Overlays */
+            .overlay-grid-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.95);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                z-index: 999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+            }
+
+            .overlay-grid-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            /* 8x8 Grid Container */
+            .overlay-grid-container {
+                display: grid;
+                grid-template-columns: repeat(8, 1fr);
+                grid-template-rows: repeat(8, 1fr);
+                gap: 5px;
+                width: min(90vw, 90vh);
+                height: min(90vw, 90vh);
+                padding: 10px;
+            }
+
+            /* Grid Buttons */
+            .overlay-grid-button {
+                background: #000000;
+                color: #ffffff;
+                border: 1px solid #333333;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+
+            .overlay-grid-button:hover {
+                background: #1a1a1a;
+                transform: scale(1.05);
+                border-color: #666;
+            }
+
+            .overlay-grid-button:active {
+                transform: scale(0.95);
+                background: #2a2a2a;
+            }
+
+            /* Close button */
+            .overlay-close-button {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: #000000;
+                color: #ffffff;
+                border: 1px solid #333333;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 30px;
+                z-index: 1001;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                transition: all 0.3s ease;
+            }
+
+            .overlay-close-button:hover {
+                background: #1a1a1a;
+                transform: rotate(90deg);
+            }
+
+            .overlay-close-button:active {
+                transform: scale(0.9) rotate(180deg);
+            }
+
+            /* Mobile optimizations */
+            @media (max-width: 768px) {
+                .overlay-main-button {
+                    width: 45px;
+                    height: 45px;
+                    font-size: 20px;
+                }
+                
+                .overlay-button-1 { top: 115px; }
+                .overlay-button-2 { top: 170px; }
+                .overlay-button-3 { top: 225px; }
+                
+                .overlay-grid-container {
+                    gap: 3px;
+                }
+                
+                .overlay-grid-button {
+                    font-size: 12px;
+                }
+            }
+        </style>
+
+        <!-- Three Numbered Buttons -->
+        <button class="overlay-main-button overlay-button-1" onclick="overlayToggleGrid(1)">1</button>
+        <button class="overlay-main-button overlay-button-2" onclick="overlayToggleGrid(2)">2</button>
+        <button class="overlay-main-button overlay-button-3" onclick="overlayToggleGrid(3)">3</button>
+
+        <!-- Grid Overlay 1 -->
+        <div class="overlay-grid-overlay" id="overlay-grid-1">
+            <button class="overlay-close-button" onclick="overlayCloseGrid(1)">×</button>
+            <div class="overlay-grid-container" id="overlay-container-1"></div>
+        </div>
+
+        <!-- Grid Overlay 2 -->
+        <div class="overlay-grid-overlay" id="overlay-grid-2">
+            <button class="overlay-close-button" onclick="overlayCloseGrid(2)">×</button>
+            <div class="overlay-grid-container" id="overlay-container-2"></div>
+        </div>
+
+        <!-- Grid Overlay 3 -->
+        <div class="overlay-grid-overlay" id="overlay-grid-3">
+            <button class="overlay-close-button" onclick="overlayCloseGrid(3)">×</button>
+            <div class="overlay-grid-container" id="overlay-container-3"></div>
         </div>
     </div>
 
@@ -92,34 +249,109 @@ import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
     <SimpleGroupChat />
 
     <script>
-        // Grid overlay functionality
-        const fullGridOverlay = document.getElementById('fullGridOverlay');
-        const closeGridBtn = document.getElementById('closeGrid');
-        
-        // Close grid overlay
-        if (closeGridBtn) {
-            closeGridBtn.addEventListener('click', () => {
-                if (fullGridOverlay) {
-                    fullGridOverlay.style.opacity = '0';
-                    setTimeout(() => {
-                        fullGridOverlay.style.display = 'none';
-                    }, 300);
+        // Initialize grid buttons
+        function initializeOverlayGrids() {
+            for (let gridNum = 1; gridNum <= 3; gridNum++) {
+                const container = document.getElementById(`overlay-container-${gridNum}`);
+                if (container) {
+                    for (let i = 1; i <= 64; i++) {
+                        const button = document.createElement('button');
+                        button.className = 'overlay-grid-button';
+                        button.textContent = i.toString();
+                        button.onclick = () => overlayHandleButton(gridNum, i);
+                        container.appendChild(button);
+                    }
                 }
-            });
+            }
         }
-        
-        // Close on overlay click (outside grid)
-        if (fullGridOverlay) {
-            fullGridOverlay.addEventListener('click', (e) => {
-                if (e.target === fullGridOverlay && closeGridBtn) {
-                    closeGridBtn.click();
+
+        // Toggle grid visibility
+        function overlayToggleGrid(gridNumber) {
+            const grid = document.getElementById(`overlay-grid-${gridNumber}`);
+            if (grid) {
+                const isActive = grid.classList.contains('active');
+                
+                // Close all grids first
+                for (let i = 1; i <= 3; i++) {
+                    const gridElement = document.getElementById(`overlay-grid-${i}`);
+                    if (gridElement) {
+                        gridElement.classList.remove('active');
+                    }
                 }
-            });
+                
+                // If it wasn't active, open it
+                if (!isActive) {
+                    grid.classList.add('active');
+                }
+            }
+        }
+
+        // Close grid
+        function overlayCloseGrid(gridNumber) {
+            const grid = document.getElementById(`overlay-grid-${gridNumber}`);
+            if (grid) {
+                grid.classList.remove('active');
+            }
+        }
+
+        // Handle button clicks
+        function overlayHandleButton(gridNumber, buttonNumber) {
+            console.log(`Grid ${gridNumber}, Button ${buttonNumber} clicked`);
             
-            // Initialize overlay styles
-            fullGridOverlay.style.opacity = '0';
-            fullGridOverlay.style.transition = 'opacity 0.3s ease';
+            // Add your custom logic here
+            // Example: different actions for different grids
+            switch(gridNumber) {
+                case 1:
+                    console.log(`Grid 1 Action: Button ${buttonNumber}`);
+                    // Add your Grid 1 specific actions
+                    break;
+                case 2:
+                    console.log(`Grid 2 Action: Button ${buttonNumber}`);
+                    // Add your Grid 2 specific actions
+                    break;
+                case 3:
+                    console.log(`Grid 3 Action: Button ${buttonNumber}`);
+                    // Add your Grid 3 specific actions
+                    break;
+            }
+            
+            // Optional: close grid after selection
+            // overlayCloseGrid(gridNumber);
         }
+
+        // Close grids on overlay click
+        document.querySelectorAll('.overlay-grid-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    const gridId = overlay.id;
+                    const gridNumber = parseInt(gridId.split('-')[2]);
+                    overlayCloseGrid(gridNumber);
+                }
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                for (let i = 1; i <= 3; i++) {
+                    overlayCloseGrid(i);
+                }
+            } else if (e.key >= '1' && e.key <= '3') {
+                overlayToggleGrid(parseInt(e.key));
+            }
+        });
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeOverlayGrids);
+        } else {
+            initializeOverlayGrids();
+        }
+
+        // Make functions global so they can be called from onclick handlers
+        (window as any).overlayToggleGrid = overlayToggleGrid;
+        (window as any).overlayCloseGrid = overlayCloseGrid;
+        (window as any).overlayHandleButton = overlayHandleButton;
     </script>
 </body>
 </html>

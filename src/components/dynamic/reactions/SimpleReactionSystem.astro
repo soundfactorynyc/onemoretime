@@ -41,16 +41,16 @@
 
   .reaction-controls {
     position: fixed;
-    bottom: 70px; /* Moved higher to avoid group chat overlap */
+    bottom: 50px; /* Much tighter to group chat - reduced from 70px */
     left: 50%;
     transform: translateX(-50%);
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(2, 1fr); /* Two rows for better mobile layout */
-    gap: 4px; /* Smaller gap */
+    gap: 2px; /* Tighter gap between buttons */
     background: rgba(0, 0, 0, 0.9);
-    padding: 6px 8px; /* Smaller padding */
-    border-radius: 12px; /* Smaller border radius */
+    padding: 4px 6px; /* Even smaller padding for tighter spacing */
+    border-radius: 10px; /* Smaller border radius */
     backdrop-filter: blur(10px);
     z-index: 1001;
     width: 320px; /* Smaller width to fit under screen */
