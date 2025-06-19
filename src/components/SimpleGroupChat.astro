@@ -1,0 +1,88 @@
+---
+// Simple One Line Group Chat
+---
+
+<div class="one-line-group-chat">
+    <input type="text" id="groupChatInput" placeholder="Group Chat - Type your message..." maxlength="500">
+    <button id="groupSendBtn">Send</button>
+    <button id="shareBtn" class="share-btn">📱</button>
+</div>
+
+<style>
+.one-line-group-chat {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+}
+
+#groupChatInput {
+    width: 300px;
+    background: #000000;
+    border: 1px solid #ffffff;
+    border-radius: 20px;
+    padding: 10px 16px;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+}
+
+#groupChatInput::placeholder {
+    color: #888;
+}
+
+#groupSendBtn {
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#groupSendBtn:hover {
+    background: #f0f0f0;
+}
+
+.share-btn {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-btn:hover {
+    background: #333;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('groupChatInput') as HTMLInputElement;
+    const sendBtn = document.getElementById('groupSendBtn');
+    
+    function sendMessage() {
+        if (input && input.value.trim()) {
+            console.log('Group message:', input.value);
+            input.value = '';
+        }
+    }
+    
+    sendBtn?.addEventListener('click', sendMessage);
+    input?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+});
+</script>

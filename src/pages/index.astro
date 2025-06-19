@@ -1,16 +1,57 @@
 ---
-
+// Sound Factory Grid - Main Hub
+import BlackGrid from '../components/BlackGrid.astro';
+import SimpleReactionSystem from '../components/dynamic/reactions/SimpleReactionSystem.astro';
+import LiveChatSupport from '../components/LiveChatSupport.astro';
+import SimpleGroupChat from '../components/SimpleGroupChat.astro';
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Harmony System - Sound Factory NYC</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Prevent pull-to-refresh on mobile */
+        body {
+            overscroll-behavior-y: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- ONE UNIFIED COMPONENT - Everything is here! -->
+    <BlackGrid 
+        wsUrl="ws://localhost:8080"
+        ledRows={200}
+        ledCols={100}
+    />
+    
+    <!-- SIMPLE REACTION SYSTEM - Working reactions! -->
+    <SimpleReactionSystem />
+    
+    <!-- LIVE CHAT SUPPORT -->
+    <LiveChatSupport />
+
+    <!-- SIMPLE GROUP CHAT -->
+    <SimpleGroupChat />
+</body>
 </html>

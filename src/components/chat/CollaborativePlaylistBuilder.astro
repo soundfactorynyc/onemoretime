@@ -1,0 +1,67 @@
+---
+// Collaborative Playlist Builder - Community Connection Component
+---
+
+<div class="collaborative-playlist-builder">
+    <button class="component-btn playlist-btn" id="playlistBtn">
+        <div class="component-icon">🎶</div>
+        <div class="component-label">Playlist Builder</div>
+        <div class="premium-tag">PREMIUM</div>
+    </button>
+</div>
+
+<style>
+.collaborative-playlist-builder {
+    width: 100%;
+}
+
+.component-btn {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.component-btn:hover {
+    background: #2a2a2a;
+    border-color: #555;
+    transform: translateY(-1px);
+}
+
+.component-icon {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000000;
+    border-radius: 6px;
+}
+
+.component-label {
+    flex: 1;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.premium-tag {
+    background: #ff4757;
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+</style>

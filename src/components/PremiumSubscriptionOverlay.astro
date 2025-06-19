@@ -1,0 +1,551 @@
+---
+// Premium Subscription Overlay - Beautiful Black Design
+---
+
+<div id="premiumOverlay" class="premium-overlay hidden">
+    <div class="premium-backdrop"></div>
+    <div class="premium-modal">
+        <!-- Close Button -->
+        <button id="closePremium" class="close-premium">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+
+        <!-- Header -->
+        <div class="premium-header">
+            <div class="premium-icon">🎵</div>
+            <h2>UNLOCK PREMIUM POWER</h2>
+            <p>Access exclusive features that make you dominate the Sound Factory</p>
+        </div>
+
+        <!-- Subscription Tiers -->
+        <div class="subscription-tiers">
+            <!-- Beat Master Tier -->
+            <div class="tier-card tier-premium">
+                <div class="tier-badge">MOST POPULAR</div>
+                <div class="tier-header">
+                    <h3>Beat Master</h3>
+                    <div class="tier-price">
+                        <span class="price">$4.99</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="tier-features">
+                    <div class="feature">
+                        <span class="feature-icon">✨</span>
+                        <span>Glow trails & particle effects</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🎛️</span>
+                        <span>AI-powered DJ controls</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💬</span>
+                        <span>Premium chat effects</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🎵</span>
+                        <span>20 exclusive emojis</span>
+                    </div>
+                </div>
+                <button class="subscribe-btn premium-btn">
+                    UPGRADE TO BEAT MASTER
+                </button>
+            </div>
+
+            <!-- Grid Master Tier -->
+            <div class="tier-card tier-vip">
+                <div class="tier-badge tier-badge-vip">VIP</div>
+                <div class="tier-header">
+                    <h3>Grid Master</h3>
+                    <div class="tier-price">
+                        <span class="price">$9.99</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="tier-features">
+                    <div class="feature">
+                        <span class="feature-icon">⏰</span>
+                        <span>Time control powers</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🔮</span>
+                        <span>Holographic controls</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🎚️</span>
+                        <span>Gesture-controlled mixing</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">👑</span>
+                        <span>All Beat Master features</span>
+                    </div>
+                </div>
+                <button class="subscribe-btn vip-btn">
+                    UPGRADE TO GRID MASTER
+                </button>
+            </div>
+
+            <!-- Factory Owner Tier -->
+            <div class="tier-card tier-elite">
+                <div class="tier-badge tier-badge-elite">ELITE</div>
+                <div class="tier-header">
+                    <h3>Factory Owner</h3>
+                    <div class="tier-price">
+                        <span class="price">$19.99</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="tier-features">
+                    <div class="feature">
+                        <span class="feature-icon">🏭</span>
+                        <span>Create private rooms</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🤖</span>
+                        <span>Personal AI DJ assistant</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💰</span>
+                        <span>Revenue sharing</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💎</span>
+                        <span>All previous features</span>
+                    </div>
+                </div>
+                <button class="subscribe-btn elite-btn">
+                    BECOME FACTORY OWNER
+                </button>
+            </div>
+        </div>
+
+        <!-- Premium Features Preview -->
+        <div class="premium-preview">
+            <h3>See What You're Missing</h3>
+            <div class="preview-grid">
+                <div class="preview-item">
+                    <div class="preview-icon">🌟</div>
+                    <span>Glow Effects</span>
+                </div>
+                <div class="preview-item">
+                    <div class="preview-icon">⚡</div>
+                    <span>Screen Shake</span>
+                </div>
+                <div class="preview-item">
+                    <div class="preview-icon">🎨</div>
+                    <span>Particle Trails</span>
+                </div>
+                <div class="preview-item">
+                    <div class="preview-icon">🔥</div>
+                    <span>Visual Dominance</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.premium-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.premium-overlay.hidden {
+    display: none;
+}
+
+.premium-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.premium-modal {
+    position: relative;
+    background: #000000;
+    border: 2px solid #333;
+    border-radius: 20px;
+    max-width: 1200px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+}
+
+.close-premium {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-premium:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.close-premium svg {
+    width: 24px;
+    height: 24px;
+}
+
+.premium-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.premium-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.premium-header h2 {
+    font-size: 48px;
+    font-weight: 900;
+    margin: 0 0 15px 0;
+    background: linear-gradient(45deg, #fff, #ccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.premium-header p {
+    font-size: 18px;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.subscription-tiers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.tier-card {
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 15px;
+    padding: 30px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.tier-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+}
+
+.tier-premium {
+    border-color: #ff6b6b;
+}
+
+.tier-vip {
+    border-color: #4ecdc4;
+}
+
+.tier-elite {
+    border-color: #ffe66d;
+}
+
+.tier-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff6b6b;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tier-badge-vip {
+    background: #4ecdc4;
+}
+
+.tier-badge-elite {
+    background: #ffe66d;
+    color: #000;
+}
+
+.tier-header h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.tier-price {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.price {
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.period {
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+.tier-features {
+    margin-bottom: 30px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #222;
+}
+
+.feature:last-child {
+    border-bottom: none;
+}
+
+.feature-icon {
+    font-size: 20px;
+    width: 30px;
+    text-align: center;
+}
+
+.subscribe-btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.premium-btn {
+    background: #ff6b6b;
+    color: #fff;
+}
+
+.premium-btn:hover {
+    background: #ff5252;
+    transform: scale(1.05);
+}
+
+.vip-btn {
+    background: #4ecdc4;
+    color: #fff;
+}
+
+.vip-btn:hover {
+    background: #26a69a;
+    transform: scale(1.05);
+}
+
+.elite-btn {
+    background: #ffe66d;
+    color: #000;
+}
+
+.elite-btn:hover {
+    background: #ffd54f;
+    transform: scale(1.05);
+}
+
+.premium-preview {
+    text-align: center;
+    padding: 30px;
+    background: #111;
+    border-radius: 15px;
+    border: 1px solid #333;
+}
+
+.premium-preview h3 {
+    font-size: 24px;
+    margin: 0 0 30px 0;
+    color: #fff;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 20px;
+}
+
+.preview-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: #000;
+    border-radius: 10px;
+    border: 1px solid #333;
+}
+
+.preview-icon {
+    font-size: 30px;
+}
+
+.preview-item span {
+    font-size: 14px;
+    color: #ccc;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .premium-modal {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .premium-header h2 {
+        font-size: 32px;
+    }
+    
+    .subscription-tiers {
+        grid-template-columns: 1fr;
+    }
+    
+    .preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Animation */
+.premium-overlay {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.premium-modal {
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+</style>
+
+<script>
+class PremiumSubscriptionSystem {
+    constructor() {
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        const closeBtn = document.getElementById('closePremium');
+        const backdrop = document.querySelector('.premium-backdrop');
+        const subscribeButtons = document.querySelectorAll('.subscribe-btn');
+        
+        closeBtn?.addEventListener('click', () => this.hidePremiumOverlay());
+        backdrop?.addEventListener('click', () => this.hidePremiumOverlay());
+        
+        subscribeButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tier = this.getTierFromButton(e.target);
+                this.handleSubscription(tier);
+            });
+        });
+    }
+    
+    showPremiumOverlay() {
+        const overlay = document.getElementById('premiumOverlay');
+        overlay?.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    hidePremiumOverlay() {
+        const overlay = document.getElementById('premiumOverlay');
+        overlay?.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    getTierFromButton(button) {
+        if (button.classList.contains('premium-btn')) return 'beat-master';
+        if (button.classList.contains('vip-btn')) return 'grid-master';
+        if (button.classList.contains('elite-btn')) return 'factory-owner';
+        return 'beat-master';
+    }
+    
+    handleSubscription(tier) {
+        console.log(`Subscribing to: ${tier}`);
+        
+        // Here you would integrate with Stripe or your payment processor
+        // For now, we'll show a simple alert
+        const tierNames = {
+            'beat-master': 'Beat Master ($4.99/month)',
+            'grid-master': 'Grid Master ($9.99/month)',
+            'factory-owner': 'Factory Owner ($19.99/month)'
+        };
+        
+        alert(`Redirecting to payment for ${tierNames[tier]}...`);
+        
+        // In a real implementation:
+        // window.location.href = `/subscribe/${tier}`;
+    }
+}
+
+// Make it globally accessible
+window.showPremiumOverlay = () => {
+    const system = new PremiumSubscriptionSystem();
+    system.showPremiumOverlay();
+};
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.premiumSystem = new PremiumSubscriptionSystem();
+});
+</script>

@@ -1,0 +1,543 @@
+---
+// Group Chat Hub - Floating Overlay for Sound Factory
+---
+
+<!-- Group Chat Toggle Button -->
+<button id="groupChatToggle" class="group-chat-toggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <span class="chat-label">Sound Factory Chat</span>
+    <span class="participant-count"><span class="count">47</span> online</span>
+</button>
+
+<!-- Group Chat Overlay -->
+<div id="groupChatOverlay" class="group-chat-overlay hidden">
+    <div class="chat-window">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <h3>🎵 Sound Factory Group Chat</h3>
+            <button id="closeChatBtn" class="close-btn">✕</button>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages-container">
+            <div id="chatMessages" class="chat-messages">
+                <!-- Messages will be populated here -->
+            </div>
+        </div>
+
+        <!-- Reactions Above Input -->
+        <div class="enhancement-controls">
+            <button class="enhancement-btn" data-type="bubble" title="Bubble Letters">🗨️</button>
+            <button class="enhancement-btn" data-type="voice" title="Voice Effects">🎤</button>
+            <button class="enhancement-btn" data-type="emoji" title="Emoji Rain">🌧️</button>
+            <button class="enhancement-btn" data-type="gesture" title="Hand Gestures">👋</button>
+            <button class="enhancement-btn" data-type="face" title="Face Mirror">😊</button>
+            <button class="enhancement-btn" data-type="mood" title="Mood Sync">🔗</button>
+        </div>
+
+        <!-- Chat Input with Social Media -->
+        <div class="input-wrapper">
+            <!-- Social Media Buttons on Left -->
+            <div class="social-media-buttons">
+                <button class="social-btn twitter" title="Share to Twitter">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+                    </svg>
+                </button>
+                <button class="social-btn instagram" title="Share to Instagram">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                        <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                    </svg>
+                </button>
+                <button class="social-btn tiktok" title="Share to TikTok">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Chat Input -->
+            <input type="text" id="groupChatInput" placeholder="Type your message...">
+            
+            <!-- Send Button -->
+            <button id="sendButton" class="send-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22,2 15,22 11,13 2,9 22,2"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.group-chat-hub {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 250px;
+    background: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    border-radius: 12px;
+    z-index: 2000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-panel {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #333;
+    overflow-y: auto;
+}
+
+.chat-panel h3 {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+}
+
+.component-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.main-chat-interface {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-header {
+    background: #000000;
+    padding: 12px 16px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.participant-count {
+    font-size: 14px;
+    color: #999;
+}
+
+.participant-count .count {
+    color: #2ed573;
+    font-weight: 600;
+}
+
+.chat-messages-container {
+    flex: 1;
+    overflow: hidden;
+}
+
+.chat-messages {
+    height: 100%;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.chat-input-enhanced {
+    padding: 16px;
+    background: #2a2a2a;
+    border-top: 1px solid #333;
+}
+
+.enhancement-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    justify-content: center;
+}
+
+.enhancement-btn {
+    background: #000000;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.enhancement-btn:hover {
+    transform: scale(1.1);
+    background: #333;
+}
+
+.enhancement-btn.active {
+    background: #2ed573;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.social-media-buttons {
+    display: flex;
+    gap: 6px;
+    margin-right: 8px;
+}
+
+.social-btn {
+    background: #000000;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.social-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.social-btn:hover {
+    transform: scale(1.1);
+}
+
+.social-btn.twitter:hover {
+    background: #1DA1F2;
+}
+
+.social-btn.instagram:hover {
+    background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+}
+
+.social-btn.tiktok:hover {
+    background: #FF0050;
+}
+
+#groupChatInput {
+    flex: 1;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 12px 16px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#groupChatInput:focus {
+    border-color: #2ed573;
+}
+
+#groupChatInput::placeholder {
+    color: #666;
+}
+
+.send-btn {
+    background: #2ed573;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.send-btn:hover {
+    transform: scale(1.1);
+}
+
+.send-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .group-chat-hub {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .chat-panel {
+        display: none;
+    }
+    
+    .main-chat-interface {
+        grid-column: 1;
+        grid-row: 1 / -1;
+    }
+}
+</style>
+
+<script>
+class GroupChatSystem {
+    constructor() {
+        this.activeEnhancements = new Set();
+        this.participants = 47;
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.loadChatHistory();
+        this.startParticipantUpdates();
+    }
+
+    setupEventListeners() {
+        const sendButton = document.getElementById('sendButton');
+        const chatInput = document.getElementById('groupChatInput');
+        const enhancementBtns = document.querySelectorAll('.enhancement-btn');
+        const socialBtns = document.querySelectorAll('.social-btn');
+
+        sendButton?.addEventListener('click', () => this.sendMessage());
+        chatInput?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.sendMessage();
+        });
+
+        enhancementBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = btn.dataset.type;
+                this.toggleEnhancement(type, btn);
+            });
+        });
+
+        // Social media buttons
+        socialBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const platform = btn.classList[1]; // twitter, instagram, tiktok
+                this.shareToSocial(platform);
+            });
+        });
+    }
+
+    toggleEnhancement(type, btn) {
+        if (this.activeEnhancements.has(type)) {
+            this.activeEnhancements.delete(type);
+            btn.classList.remove('active');
+        } else {
+            this.activeEnhancements.add(type);
+            btn.classList.add('active');
+        }
+    }
+
+    sendMessage() {
+        const input = document.getElementById('groupChatInput');
+        if (!input) return;
+
+        const message = input.value.trim();
+        if (!message) return;
+
+        const enhancedMessage = this.enhanceMessage(message);
+        this.addMessageToChat(enhancedMessage, 'user');
+        input.value = '';
+
+        // Simulate responses
+        setTimeout(() => {
+            this.simulateGroupResponse(message);
+        }, Math.random() * 2000 + 500);
+    }
+
+    enhanceMessage(message) {
+        let enhanced = { text: message, effects: [] };
+
+        if (this.activeEnhancements.has('bubble')) {
+            enhanced.effects.push('bubble-letters');
+        }
+        if (this.activeEnhancements.has('voice')) {
+            enhanced.effects.push('voice-visual');
+        }
+        if (this.activeEnhancements.has('emoji')) {
+            enhanced.effects.push('emoji-rain');
+        }
+        if (this.activeEnhancements.has('gesture')) {
+            enhanced.effects.push('gesture-enhanced');
+        }
+
+        return enhanced;
+    }
+
+    addMessageToChat(message, sender = 'user', username = 'You') {
+        const messagesContainer = document.getElementById('chatMessages');
+        if (!messagesContainer) return;
+
+        const messageTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const effectsClass = message.effects ? message.effects.join(' ') : '';
+        
+        const messageHTML = `
+            <div class="group-message ${sender}-message ${effectsClass}">
+                <div class="message-header">
+                    <span class="username">${username}</span>
+                    <span class="timestamp">${messageTime}</span>
+                </div>
+                <div class="message-content">
+                    ${typeof message === 'string' ? message : message.text}
+                </div>
+                ${message.effects && message.effects.length > 0 ? 
+                    `<div class="message-effects">${this.renderEffects(message.effects)}</div>` : ''
+                }
+            </div>
+        `;
+        
+        messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    renderEffects(effects) {
+        return effects.map(effect => {
+            switch(effect) {
+                case 'bubble-letters':
+                    return '<span class="effect-indicator">🗨️</span>';
+                case 'voice-visual':
+                    return '<span class="effect-indicator">🎤</span>';
+                case 'emoji-rain':
+                    return '<span class="effect-indicator">🌧️</span>';
+                case 'gesture-enhanced':
+                    return '<span class="effect-indicator">👋</span>';
+                default:
+                    return '';
+            }
+        }).join('');
+    }
+
+    simulateGroupResponse(userMessage) {
+        const responses = [
+            "That's awesome! 🔥",
+            "Love the energy in here! ⚡",
+            "Let's keep this vibe going! 🎵",
+            "Anyone else feeling this track? 🎧",
+            "This chat is fire! 🌟"
+        ];
+
+        const usernames = [
+            "DJ_Nexus", "BeatMaster", "SoundWave", "RhythmKing", 
+            "MusicLover", "DanceFever", "GrooveQueen", "BassDrop"
+        ];
+
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        const randomUsername = usernames[Math.floor(Math.random() * usernames.length)];
+
+        this.addMessageToChat(randomResponse, 'other', randomUsername);
+    }
+
+    loadChatHistory() {
+        // Simulate loading existing chat messages
+        const sampleMessages = [
+            { text: "Welcome to Sound Factory Group Chat! 🎵", sender: 'system', username: 'System' },
+            { text: "This place is amazing! The beats are incredible!", sender: 'other', username: 'MusicLover' },
+            { text: "Anyone want to collaborate on a track?", sender: 'other', username: 'DJ_Nexus' }
+        ];
+
+        sampleMessages.forEach(msg => {
+            setTimeout(() => {
+                this.addMessageToChat(msg.text, msg.sender, msg.username);
+            }, Math.random() * 1000);
+        });
+    }
+
+    startParticipantUpdates() {
+        setInterval(() => {
+            // Randomly update participant count
+            const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+            this.participants = Math.max(1, this.participants + change);
+            
+            const countElement = document.querySelector('.participant-count .count');
+            if (countElement) {
+                countElement.textContent = this.participants;
+            }
+        }, 30000); // Update every 30 seconds
+    }
+
+    shareToSocial(platform) {
+        const message = "🎵 Check out this amazing Sound Factory group chat session! Join the beat! 🔥";
+        
+        switch(platform) {
+            case 'twitter':
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+                break;
+            case 'instagram':
+                // Instagram doesn't have direct sharing URL, so copy to clipboard
+                navigator.clipboard.writeText(message + ' ' + window.location.href);
+                this.showNotification('Message copied! Paste it in your Instagram story! 📱');
+                break;
+            case 'tiktok':
+                navigator.clipboard.writeText(message + ' ' + window.location.href);
+                this.showNotification('Message copied! Share on TikTok! 🎬');
+                break;
+        }
+    }
+
+    showNotification(text) {
+        const notification = document.createElement('div');
+        notification.className = 'social-notification';
+        notification.textContent = text;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #000000;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            z-index: 10000;
+            font-size: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    window.groupChatSystem = new GroupChatSystem();
+});
+</script>

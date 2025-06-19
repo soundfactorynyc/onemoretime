@@ -1,0 +1,686 @@
+---
+// HarmonySystem - Complete unified component
+// Grid Interface + LED Display + WebSocket - All in one
+export interface Props {
+  wsUrl?: string;
+  ledRows?: number;
+  ledCols?: number;
+}
+
+const { 
+  wsUrl = 'ws://localhost:8080', 
+  ledRows = 200, 
+  ledCols = 100 
+} = Astro.props;
+---
+
+<div class="harmony-system">
+  <!-- Three Black Buttons on Left -->
+  <button class="main-button button-top" data-grid="top">
+    <span class="icon">+</span>
+  </button>
+  
+  <button class="main-button button-middle" data-grid="middle">
+    <span class="icon">+</span>
+  </button>
+  
+  <button class="main-button button-bottom" data-grid="bottom">
+    <span class="icon">+</span>
+  </button>
+
+  <!-- Top Grid Overlay -->
+  <div class="grid-overlay" id="grid-top">
+    <button class="close-button" data-close="top">×</button>
+    <div class="grid-container">
+      {[...Array(64)].map((_, i) => (
+        <button 
+          class="grid-button" 
+          data-position="top" 
+          data-index={i + 1}
+        >
+          {i + 1}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Middle Grid Overlay -->
+  <div class="grid-overlay" id="grid-middle">
+    <button class="close-button" data-close="middle">×</button>
+    <div class="grid-container">
+      {[...Array(64)].map((_, i) => (
+        <button 
+          class="grid-button" 
+          data-position="middle" 
+          data-index={i + 1}
+        >
+          {i + 1}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Bottom Grid Overlay -->
+  <div class="grid-overlay" id="grid-bottom">
+    <button class="close-button" data-close="bottom">×</button>
+    <div class="grid-container">
+      {[...Array(64)].map((_, i) => (
+        <button 
+          class="grid-button" 
+          data-position="bottom" 
+          data-index={i + 1}
+        >
+          {i + 1}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- LED Display -->
+  <div class="led-display-container" id="ledDisplay">
+    <div 
+      class="led-grid" 
+      id="ledGrid"
+      data-rows={ledRows}
+      data-cols={ledCols}
+    >
+      <!-- LED pixels created by JavaScript -->
+    </div>
+  </div>
+
+  <!-- Reaction Canvas Layer -->
+  <canvas id="reactionCanvas" class="reaction-canvas"></canvas>
+  <canvas id="hologramCanvas" class="hologram-canvas"></canvas>
+</div>
+
+<style>
+  /* HARMONY SYSTEM - Complete Styles */
+  .harmony-system {
+    position: fixed;
+    inset: 0;
+    background: #000000;
+    overflow: hidden;
+  }
+
+  /* WebSocket Status */
+  .websocket-status {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 110;
+    font-size: 12px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff0000;
+    transition: all 0.3s ease;
+  }
+
+  .status-dot.connected { background: #00ff00; }
+  .status-dot.connecting { background: #ffff00; }
+  .status-text { color: #999; }
+
+  /* Three Black Buttons - LEFT SIDE */
+  .main-button {
+    position: fixed;
+    left: 15px;
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #333333;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .main-button:active {
+    transform: scale(0.9);
+    background: #1a1a1a;
+  }
+
+  .main-button.active .icon {
+    transform: rotate(45deg);
+  }
+
+  /* Button Positions */
+  .button-top { top: 20px; }
+  .button-middle { top: 50%; transform: translateY(-50%); }
+  .button-bottom { bottom: 20px; }
+
+  /* Icon */
+  .icon {
+    transition: transform 0.3s ease;
+    display: inline-block;
+  }
+
+  /* Grid Overlays */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.98);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .grid-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* 8x8 Grid Container */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 5px;
+    width: min(90vw, 90vh);
+    height: min(90vw, 90vh);
+    padding: 10px;
+  }
+
+  /* Grid Buttons (64 total) */
+  .grid-button {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .grid-button:hover {
+    background: #1a1a1a;
+    transform: scale(1.05);
+  }
+
+  .grid-button:active {
+    transform: scale(0.95);
+    background: #2a2a2a;
+  }
+
+  /* Close button */
+  .close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #333333;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    z-index: 101;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .close-button:active {
+    transform: scale(0.9) rotate(90deg);
+  }
+
+  /* LED Display */
+  .led-display-container {
+    position: fixed;
+    inset: 0;
+    background: #000000;
+    display: none;
+    z-index: 80;
+    pointer-events: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .led-display-container.active {
+    display: flex;
+    pointer-events: all;
+  }
+
+  .led-grid {
+    display: grid;
+    gap: 0;
+    background: #000000;
+  }
+
+  .led-pixel {
+    background: #000000;
+    aspect-ratio: 1/1;
+    transition: background-color 0.05s ease;
+  }
+
+  /* LED Colors */
+  .led-pixel.red { background: #ff0000; }
+  .led-pixel.green { background: #00ff00; }
+  .led-pixel.blue { background: #0099ff; }
+  .led-pixel.yellow { background: #ffff00; }
+  .led-pixel.purple { background: #9900ff; }
+  .led-pixel.white { background: #ffffff; }
+  .led-pixel.orange { background: #ff9900; }
+  .led-pixel.pink { background: #ff00ff; }
+  .led-pixel.cyan { background: #00ffff; }
+
+  /* Reaction Canvas */
+  .reaction-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 70;
+  }
+
+  /* Hologram Canvas */
+  .hologram-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .main-button {
+      width: 45px;
+      height: 45px;
+      font-size: 20px;
+    }
+    
+    .grid-container {
+      gap: 3px;
+    }
+    
+    .grid-button {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script define:vars={{ wsUrl, ledRows, ledCols }}>
+  class HarmonySystem {
+    constructor() {
+      this.ws = null;
+      this.activeGrid = null;
+      this.ledGrid = [];
+      this.ledPixels = [];
+      
+      this.init();
+    }
+
+    init() {
+      this.setupGridControls();
+      this.setupLEDDisplay();
+      this.setupWebSocket();
+      this.setupKeyboardShortcuts();
+    }
+
+    // GRID FUNCTIONALITY
+    setupGridControls() {
+      // Main button handlers
+      document.querySelectorAll('.main-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const gridName = button.dataset.grid;
+          this.toggleGrid(gridName);
+        });
+      });
+
+      // Close button handlers
+      document.querySelectorAll('.close-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const gridName = button.dataset.close;
+          this.closeGrid(gridName);
+        });
+      });
+
+      // Grid button handlers
+      document.querySelectorAll('.grid-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const position = button.dataset.position;
+          const index = button.dataset.index;
+          this.handleGridButton(position, parseInt(index));
+        });
+      });
+
+      // Close on overlay click
+      document.querySelectorAll('.grid-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            const gridName = overlay.id.replace('grid-', '');
+            this.closeGrid(gridName);
+          }
+        });
+      });
+    }
+
+    toggleGrid(gridName) {
+      const grid = document.getElementById(`grid-${gridName}`);
+      const button = document.querySelector(`.button-${gridName}`);
+      
+      const isActive = grid.classList.contains('active');
+      
+      // Close all grids first
+      ['top', 'middle', 'bottom'].forEach(pos => {
+        document.getElementById(`grid-${pos}`).classList.remove('active');
+        document.querySelector(`.button-${pos}`).classList.remove('active');
+      });
+      
+      // If it wasn't active, open it
+      if (!isActive) {
+        grid.classList.add('active');
+        button.classList.add('active');
+        this.activeGrid = gridName;
+      } else {
+        this.activeGrid = null;
+      }
+    }
+
+    closeGrid(gridName) {
+      const grid = document.getElementById(`grid-${gridName}`);
+      const button = document.querySelector(`.button-${gridName}`);
+      grid.classList.remove('active');
+      button.classList.remove('active');
+      
+      if (this.activeGrid === gridName) {
+        this.activeGrid = null;
+      }
+    }
+
+    handleGridButton(grid, button) {
+      console.log(`Grid: ${grid}, Button: ${button}`);
+      
+      // Send via WebSocket
+      this.sendMessage({
+        type: 'grid-button',
+        grid: grid,
+        button: button,
+        timestamp: Date.now()
+      });
+      
+      // Handle locally
+      if (grid === 'top') {
+        this.lightUpSection(button);
+      } else if (grid === 'middle') {
+        this.runEffect(button);
+      } else if (grid === 'bottom') {
+        this.loadPreset(button);
+      }
+    }
+
+    // LED FUNCTIONALITY
+    setupLEDDisplay() {
+      const ledGrid = document.getElementById('ledGrid');
+      
+      // Set grid template
+      ledGrid.style.gridTemplateColumns = `repeat(${ledCols}, 1fr)`;
+      ledGrid.style.gridTemplateRows = `repeat(${ledRows}, 1fr)`;
+      
+      // Set size
+      const size = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.9);
+      ledGrid.style.width = `${size}px`;
+      ledGrid.style.height = `${size * (ledRows / ledCols)}px`;
+      
+      // Create pixels
+      this.createLEDPixels();
+    }
+
+    createLEDPixels() {
+      const ledGrid = document.getElementById('ledGrid');
+      
+      for (let row = 0; row < ledRows; row++) {
+        this.ledGrid[row] = [];
+        for (let col = 0; col < ledCols; col++) {
+          const pixel = document.createElement('div');
+          pixel.className = 'led-pixel';
+          pixel.id = `led-${row}-${col}`;
+          
+          ledGrid.appendChild(pixel);
+          this.ledPixels.push(pixel);
+          this.ledGrid[row][col] = pixel;
+        }
+      }
+    }
+
+    showLED() {
+      document.getElementById('ledDisplay').classList.add('active');
+    }
+
+    hideLED() {
+      document.getElementById('ledDisplay').classList.remove('active');
+    }
+
+    setPixel(row, col, color = 'white') {
+      const pixel = this.ledGrid[row]?.[col];
+      if (pixel) {
+        pixel.className = `led-pixel ${color}`;
+      }
+    }
+
+    clearLED() {
+      this.ledPixels.forEach(pixel => {
+        pixel.className = 'led-pixel';
+      });
+    }
+
+    lightUpSection(section) {
+      const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'white', 'orange', 'pink'];
+      const color = colors[(section - 1) % colors.length];
+      
+      this.showLED();
+      this.clearLED();
+      
+      // Calculate 8x8 sections
+      const sectionRows = Math.floor(ledRows / 8);
+      const sectionCols = Math.floor(ledCols / 8);
+      
+      const rowStart = Math.floor((section - 1) / 8) * sectionRows;
+      const colStart = ((section - 1) % 8) * sectionCols;
+      
+      for (let row = rowStart; row < rowStart + sectionRows && row < ledRows; row++) {
+        for (let col = colStart; col < colStart + sectionCols && col < ledCols; col++) {
+          this.setPixel(row, col, color);
+        }
+      }
+    }
+
+    runEffect(effectNumber) {
+      this.showLED();
+      
+      switch(effectNumber) {
+        case 1: this.rainbowEffect(); break;
+        case 2: this.waveEffect(); break;
+        case 3: this.pulseEffect(); break;
+        default: this.testPattern();
+      }
+    }
+
+    loadPreset(presetNumber) {
+      console.log(`Loading preset ${presetNumber}`);
+      this.testPattern();
+    }
+
+    testPattern() {
+      this.showLED();
+      this.clearLED();
+      
+      for (let row = 0; row < ledRows; row++) {
+        for (let col = 0; col < ledCols; col++) {
+          if ((row + col) % 2 === 0) {
+            const colors = ['red', 'green', 'blue'];
+            const color = colors[Math.floor((row * ledCols + col) / 100) % colors.length];
+            this.setPixel(row, col, color);
+          }
+        }
+      }
+    }
+
+    rainbowEffect() {
+      const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple'];
+      let offset = 0;
+      
+      const animate = () => {
+        for (let col = 0; col < ledCols; col++) {
+          const colorIndex = (col + offset) % colors.length;
+          for (let row = 0; row < ledRows; row++) {
+            this.setPixel(row, col, colors[colorIndex]);
+          }
+        }
+        offset++;
+        
+        if (document.getElementById('ledDisplay').classList.contains('active')) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
+    }
+
+    waveEffect() {
+      let phase = 0;
+      
+      const animate = () => {
+        for (let row = 0; row < ledRows; row++) {
+          for (let col = 0; col < ledCols; col++) {
+            const intensity = Math.sin((col + phase) * 0.1) * 0.5 + 0.5;
+            if (intensity > 0.5) {
+              this.setPixel(row, col, 'blue');
+            } else {
+              this.setPixel(row, col, '');
+            }
+          }
+        }
+        phase += 2;
+        
+        if (document.getElementById('ledDisplay').classList.contains('active')) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
+    }
+
+    pulseEffect() {
+      let brightness = 0;
+      let direction = 0.05;
+      
+      const animate = () => {
+        const color = brightness > 0.5 ? 'white' : '';
+        
+        for (let row = 0; row < ledRows; row++) {
+          for (let col = 0; col < ledCols; col++) {
+            this.setPixel(row, col, color);
+          }
+        }
+        
+        brightness += direction;
+        if (brightness >= 1 || brightness <= 0) {
+          direction *= -1;
+        }
+        
+        if (document.getElementById('ledDisplay').classList.contains('active')) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
+    }
+
+    // WEBSOCKET FUNCTIONALITY
+    setupWebSocket() {
+      this.updateWSStatus('connecting', 'Connecting...');
+      
+      try {
+        this.ws = new WebSocket(wsUrl);
+        
+        this.ws.onopen = () => {
+          console.log('WebSocket connected');
+          this.updateWSStatus('connected', 'Connected');
+        };
+
+        this.ws.onmessage = (event) => {
+          const message = JSON.parse(event.data);
+          console.log('Received:', message);
+        };
+
+        this.ws.onclose = () => {
+          console.log('WebSocket disconnected');
+          this.updateWSStatus('', 'Disconnected');
+          
+          // Reconnect after 5 seconds
+          setTimeout(() => this.setupWebSocket(), 5000);
+        };
+
+        this.ws.onerror = () => {
+          this.updateWSStatus('', 'Error');
+        };
+      } catch (error) {
+        this.updateWSStatus('', 'Failed');
+      }
+    }
+
+    sendMessage(data) {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify(data));
+      }
+    }
+
+    updateWSStatus(state, text) {
+      const dot = document.querySelector('.status-dot');
+      const statusText = document.querySelector('.status-text');
+      
+      dot.className = `status-dot ${state}`;
+      statusText.textContent = text;
+    }
+
+    // KEYBOARD SHORTCUTS
+    setupKeyboardShortcuts() {
+      document.addEventListener('keydown', (e) => {
+        switch(e.key) {
+          case 'Escape':
+            if (this.activeGrid) {
+              this.closeGrid(this.activeGrid);
+            }
+            this.hideLED();
+            break;
+          case '1':
+            this.toggleGrid('top');
+            break;
+          case '2':
+            this.toggleGrid('middle');
+            break;
+          case '3':
+            this.toggleGrid('bottom');
+            break;
+        }
+      });
+    }
+  }
+
+  // Initialize the complete system
+  new HarmonySystem();
+</script>

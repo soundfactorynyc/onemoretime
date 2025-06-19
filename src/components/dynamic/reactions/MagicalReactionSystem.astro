@@ -1,0 +1,1250 @@
+---
+// Magical Reaction System - CRAZY EFFECTS from HTML version!
+//
+// 🚨 CRITICAL REQUIREMENT: UNIVERSAL UI
+// THE FRONT-END INTERFACE MUST REMAIN IDENTICAL FOR ALL USERS
+// - Same buttons, same layout, same controls for everyone
+// - Only the shooting effects and visual reactions change based on subscription tier
+// - No tier indicators or different UI elements for different users
+// - All tier logic handled server-side, UI stays the same
+//
+// EXAMPLE: When any user clicks the 💜 button:
+// - Free: basic heart emoji shoots up
+// - Premium: heart with glow trail shoots up  
+// - VIP: holographic heart with particles shoots up
+// - Elite: cinematic heart with screen effects shoots up
+// SAME BUTTON INTERFACE, DIFFERENT VISUAL MAGIC
+---
+
+<div class="reaction-buttons" id="reactionButtons">
+    <button class="reaction-btn glass" data-emoji="💜" data-type="love">💜</button>
+    <button class="reaction-btn glass" data-emoji="⚡" data-type="fire">⚡</button>
+    <button class="reaction-btn glass" data-emoji="😅" data-type="laugh">😅</button>
+    <button class="reaction-btn glass" data-emoji="💀" data-type="skull">💀</button>
+    <button class="reaction-btn glass" data-emoji="🔔" data-type="bell">🔔</button>
+    <button class="reaction-btn glass" data-emoji="✨" data-type="sparkle">✨</button>
+    <button class="reaction-btn text-btn" data-text="JP" data-type="jp">JP</button>
+    <button class="reaction-btn text-btn" data-text="SF" data-type="sf">SF</button>
+    <button class="reaction-btn glass" data-emoji="🏳️‍🌈" data-type="pride">🏳️‍🌈</button>
+    <button class="reaction-btn glass" data-emoji="🔊" data-type="speaker">🔊</button>
+    <button class="reaction-btn money-btn" data-value="1" data-type="money">$1</button>
+    <button class="reaction-btn money-btn" data-value="5" data-type="money">$5</button>
+    <button class="reaction-btn money-btn" data-value="20" data-type="money">$20</button>
+    <button class="reaction-btn money-btn" data-value="50" data-type="money">$50</button>
+</div>
+
+<!-- Canvas for magical effects -->
+<canvas id="reactionCanvas" class="reaction-canvas"></canvas>
+<canvas id="hologramCanvas" class="hologram-canvas"></canvas>
+
+<style>
+    .reaction-buttons {
+        position: fixed;
+        bottom: 4.2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 40;
+        display: flex;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        padding: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .reaction-btn {
+        width: 1.5rem;  /* 40% smaller: was 2.5rem */
+        height: 1.5rem;
+        border-radius: 50%;
+        font-size: 0.7rem;  /* 40% smaller: was 1.2rem */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+        outline: none;
+    }
+    
+    .text-btn {
+        font-size: 0.42rem;  /* 40% smaller: was 0.7rem */
+        font-weight: bold;
+        letter-spacing: 0.3px;
+        width: 1.8rem;  /* 40% smaller: was 3rem */
+    }
+    
+    .money-btn {
+        font-size: 0.48rem;  /* 40% smaller: was 0.8rem */
+        font-weight: bold;
+        background: linear-gradient(45deg, #ffd700, #ffb347);
+        color: #000;
+    }
+    
+    .reaction-btn:hover {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .reaction-btn:active {
+        transform: scale(0.9);
+    }
+    
+    .reaction-canvas, .hologram-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 1000;
+    }
+    
+    .hologram-canvas {
+        z-index: 1001;
+    }
+    
+    @media (max-width: 768px) {
+        .reaction-buttons {
+            bottom: 4.5rem;
+            gap: 0.15rem;  /* smaller gap */
+            padding: 0.3rem;  /* smaller padding */
+        }
+        
+        .reaction-btn {
+            width: 1.2rem;  /* 40% smaller: was 2rem */
+            height: 1.2rem;
+            font-size: 0.6rem;  /* 40% smaller: was 1rem */
+        }
+        
+        .text-btn {
+            font-size: 0.36rem;  /* 40% smaller: was 0.6rem */
+            width: 1.5rem;  /* 40% smaller: was 2.5rem */
+        }
+        
+        .money-btn {
+            font-size: 0.42rem;  /* 40% smaller: was 0.7rem */
+        }
+    }
+</style>
+
+<script>
+    // Magical Reaction Engine - Extract from HTML
+    class MagicalReactionEngine {
+        constructor(canvas) {
+            this.canvas = canvas;
+            this.ctx = canvas.getContext('2d');
+            this.reactions = [];
+            this.particles = [];
+            this.magicParticles = [];
+            this.animationId = null;
+            this.usernames = ['DJ_Lover', 'ClubKing', 'RaveQueen', 'SF_Regular', 'NightOwl', 'BassDrop'];
+        }
+
+        addReaction(config) {
+            // Pick a random crazy behavior!
+            const behaviors = ['bounce', 'parachute', 'explode', 'spin', 'zigzag', 'rocket', 'butterfly', 'tornado'];
+            const randomBehavior = behaviors[Math.floor(Math.random() * behaviors.length)];
+            
+            const reaction = {
+                id: Date.now() + Math.random(),
+                x: config.x,
+                y: config.y,
+                vx: (Math.random() - 0.5) * 1.5, // ULTRA SLOW: was 3
+                vy: -12 - Math.random() * 6 - (config.value * 0.3), // ULTRA SLOW: was -20 and -10
+                content: config.content,
+                type: config.type,
+                value: config.value || 0,
+                size: this.calculateSize(config) * 0.6, // 40% smaller
+                rotation: 0,
+                rotationSpeed: (Math.random() - 0.5) * 0.08 * (1 + config.value / 60), // ULTRA SLOW: was 0.15 and /40
+                opacity: 1,
+                bounces: 0,
+                maxBounces: 3 + Math.floor(config.value / 10), // MORE bounces for longer life
+                trail: [],
+                color: config.color,
+                intensity: 1 + (config.value / 15),
+                username: config.username,
+                phase: 'rising',
+                glow: config.value >= 10 ? 20 + config.value : 0,
+                // NEW CUTE BEHAVIORS!
+                behavior: randomBehavior,
+                zigzagTimer: 0,
+                butterflyTimer: 0,
+                spinSpeed: Math.random() * 0.1 + 0.05, // ULTRA SLOW: was 0.25 + 0.1
+                parachuteDeployed: false,
+                explodeTimer: Math.random() * 120 + 60, // LONGER: was 60 + 30
+                clones: [], // For splitting effects
+                magneticPull: 0,
+                bounceCount: 0,
+                lastBounceTime: 0
+            };
+
+            this.reactions.push(reaction);
+            this.createLaunchEffects(reaction);
+            
+            if (reaction.value >= 10) {
+                this.createMagicalAura(reaction);
+            }
+            
+            return reaction.id;
+        }
+
+        calculateSize(config) {
+            if (config.type === 'money') {
+                return 27 + (config.value * 0.4);  /* 40% smaller: was 45 + (value * 0.6) */
+            }
+            return 21 + (config.value * 0.2);  /* 40% smaller: was 35 + (value * 0.3) */
+        }
+
+        createMagicalAura(reaction) {
+            for (let i = 0; i < 12; i++) {
+                this.magicParticles.push({
+                    x: reaction.x + (Math.random() - 0.5) * 30,
+                    y: reaction.y + (Math.random() - 0.5) * 30,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: -3 - Math.random() * 6,
+                    size: Math.random() * 2 + 1,
+                    color: reaction.color,
+                    life: 1,
+                    decay: 0.008,
+                    sparkle: true
+                });
+            }
+        }
+
+        createLaunchEffects(reaction) {
+            this.createMagicBurst(reaction.x, reaction.y, reaction.color, reaction.intensity);
+
+            if (reaction.value >= 50) {
+                this.createMegaLaunch(reaction.x, reaction.y);
+                this.triggerScreenShake(30);
+                this.triggerScreenFlash('#FFD700', 0.8);
+                this.createRainbowExplosion(reaction.x, reaction.y);
+            } else if (reaction.value >= 20) {
+                this.createPowerLaunch(reaction.x, reaction.y);
+                this.triggerScreenShake(20);
+                this.triggerScreenFlash(reaction.color, 0.6);
+            } else if (reaction.value >= 10) {
+                this.createSpecialLaunch(reaction.x, reaction.y);
+                this.triggerScreenShake(12);
+            }
+        }
+
+        createMagicBurst(x, y, color, intensity = 1) {
+            for (let i = 0; i < 15 * intensity; i++) {  /* MORE INTENSE: was 8 * intensity */
+                this.particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8 * intensity,  /* MORE INTENSE: was 6 * intensity */
+                    vy: (Math.random() - 0.5) * 8 * intensity,
+                    size: Math.random() * 3 + 2,  /* BIGGER particles: was 2 + 1 */
+                    color: color,
+                    life: 1,
+                    decay: 0.008,  /* LONGER lasting: was 0.012 */
+                    sparkle: true,
+                    glow: 18  /* MORE GLOW: was 12 */
+                });
+            }
+        }
+
+        createRainbowExplosion(x, y) {
+            const colors = ['#ff006e', '#8338ec', '#3a86ff', '#06ffa5', '#ffbe0b', '#ff006e'];
+            for (let ring = 0; ring < 6; ring++) {
+                setTimeout(() => {
+                    for (let i = 0; i < 50; i++) {
+                        const angle = (Math.PI * 2 * i) / 50;
+                        this.particles.push({
+                            x: x,
+                            y: y,
+                            vx: Math.cos(angle) * (15 + ring * 4),
+                            vy: Math.sin(angle) * (15 + ring * 4) - 15,
+                            size: 6,
+                            color: colors[ring % colors.length],
+                            life: 1,
+                            decay: 0.008,
+                            gravity: 0.1,
+                            sparkle: true,
+                            glow: 25
+                        });
+                    }
+                }, ring * 80);
+            }
+        }
+
+        createMegaLaunch(x, y) {
+            for (let ring = 0; ring < 8; ring++) {
+                setTimeout(() => {
+                    for (let i = 0; i < 40; i++) {
+                        const angle = (Math.PI * 2 * i) / 40;
+                        this.particles.push({
+                            x: x,
+                            y: y,
+                            vx: Math.cos(angle) * (12 + ring * 3),
+                            vy: Math.sin(angle) * (12 + ring * 3) - 12,
+                            size: 5 + ring * 0.5,
+                            color: ring % 2 === 0 ? '#FFD700' : '#FF1493',
+                            life: 1,
+                            decay: 0.008,
+                            gravity: 0.1,
+                            sparkle: true,
+                            glow: 20
+                        });
+                    }
+                }, ring * 60);
+            }
+        }
+
+        createPowerLaunch(x, y) {
+            for (let i = 0; i < 80; i++) {
+                const angle = (Math.PI * 2 * i) / 15;
+                const radius = i * 0.4;
+                this.particles.push({
+                    x: x + Math.cos(angle) * radius,
+                    y: y + Math.sin(angle) * radius,
+                    vx: Math.cos(angle) * 8,
+                    vy: -18 - Math.random() * 12,
+                    size: 5,
+                    color: i % 3 === 0 ? '#FFD700' : '#FFA500',
+                    life: 1,
+                    decay: 0.012,
+                    gravity: 0.15,
+                    sparkle: true,
+                    glow: 15
+                });
+            }
+        }
+
+        createSpecialLaunch(x, y) {
+            for (let i = 0; i < 50; i++) {
+                this.particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 14,
+                    vy: -25 - Math.random() * 18,
+                    size: 4,
+                    color: '#32CD32',
+                    life: 1,
+                    decay: 0.015,
+                    gravity: 0.3,
+                    sparkle: true,
+                    glow: 12
+                });
+            }
+        }
+
+        updateReaction(reaction, index) {
+            // Apply cute behavior patterns!
+            this.applyCuteBehavior(reaction);
+            
+            reaction.trail.push({ 
+                x: reaction.x, 
+                y: reaction.y, 
+                life: 1, 
+                size: reaction.size * 0.3,
+                glow: reaction.glow 
+            });
+            if (reaction.trail.length > 20 * reaction.intensity) reaction.trail.shift();
+            
+            reaction.trail.forEach((point, i) => {
+                point.life -= 0.03 / reaction.intensity;
+                if (point.life <= 0) reaction.trail.splice(i, 1);
+            });
+
+            if (reaction.value >= 20 && Math.random() < 0.4) {
+                this.createMagicBurst(reaction.x, reaction.y, reaction.color, 0.6);
+            }
+
+            // ULTRA SLOW & ELEGANT PHYSICS
+            reaction.vy += 0.12; // ULTRA SLOW gravity: was 0.2
+            reaction.x += reaction.vx * 0.5; // ULTRA SLOW horizontal: was 0.7
+            reaction.y += reaction.vy * 0.5; // ULTRA SLOW vertical: was 0.7
+            reaction.rotation += reaction.rotationSpeed;
+
+            // Magical ceiling hit
+            if (reaction.y <= 60 && reaction.phase === 'rising') {
+                reaction.y = 60;
+                reaction.vy = Math.abs(reaction.vy) * 0.5;
+                reaction.bounces++;
+                reaction.phase = 'falling';
+                this.onMagicalCeilingHit(reaction);
+            }
+
+            // Enhanced wall bounces with cute effects
+            if (reaction.x <= 20 || reaction.x >= this.canvas.width - 20) {
+                reaction.vx = -reaction.vx * 0.8;
+                reaction.x = reaction.x <= 20 ? 20 : this.canvas.width - 20;
+                reaction.bounceCount++;
+                reaction.lastBounceTime = Date.now();
+                
+                // Cute wall bounce effects!
+                this.createWallBounceEffect(reaction);
+                this.createMagicBurst(reaction.x, reaction.y, reaction.color, reaction.intensity);
+            }
+
+            if (reaction.y > this.canvas.height || reaction.bounces > reaction.maxBounces) {
+                if (reaction.value > 0) {
+                    this.createFinalExplosion(reaction.x, reaction.y, reaction.color, reaction.intensity);
+                }
+                this.reactions.splice(index, 1);
+            }
+        }
+
+        applyCuteBehavior(reaction) {
+            switch(reaction.behavior) {
+                case 'bounce':
+                    // Super bouncy!
+                    if (Date.now() - reaction.lastBounceTime < 400) { // GENTLER: was 300
+                        reaction.vy *= 0.97; // ULTRA GENTLE: was 0.95
+                        reaction.vx += (Math.random() - 0.5) * 0.5; // ULTRA GENTLE: was * 1
+                    }
+                    break;
+                    
+                case 'parachute':
+                    // Deploy parachute at peak!
+                    if (reaction.vy > 0 && !reaction.parachuteDeployed && reaction.y < 350) { // HIGHER: was 300
+                        reaction.parachuteDeployed = true;
+                        reaction.vy *= 0.1; // ULTRA SLOW fall: was 0.2
+                        reaction.vx *= 0.4; // ULTRA SLOW drift: was 0.6
+                        this.createParachuteEffect(reaction);
+                    }
+                    break;
+                    
+                case 'explode':
+                    // Random explosion!
+                    reaction.explodeTimer--;
+                    if (reaction.explodeTimer <= 0) {
+                        this.createMidAirExplosion(reaction);
+                        reaction.behavior = 'normal'; // Stop exploding
+                    }
+                    break;
+                    
+                case 'spin':
+                    // Crazy spinning!
+                    reaction.rotationSpeed += reaction.spinSpeed;
+                    reaction.vx += Math.sin(reaction.rotation) * 0.15; // ULTRA GENTLE: was 0.3
+                    break;
+                    
+                case 'zigzag':
+                    // Zigzag pattern!
+                    reaction.zigzagTimer += 0.03; // ULTRA SLOW: was 0.05
+                    reaction.vx += Math.sin(reaction.zigzagTimer * 3) * 0.5; // ULTRA GENTLE: was 1
+                    break;
+                    
+                case 'rocket':
+                    // Rocket boost!
+                    if (Math.random() < 0.02) { // ULTRA RARE: was 0.03
+                        reaction.vy -= 1.5; // ULTRA GENTLE: was -3
+                        this.createRocketTrail(reaction);
+                    }
+                    break;
+                    
+                case 'butterfly':
+                    // Butterfly flutter!
+                    reaction.butterflyTimer += 0.05; // ULTRA SLOW: was 0.08
+                    reaction.vx += Math.sin(reaction.butterflyTimer * 4) * 0.3; // ULTRA GENTLE: was 0.5
+                    reaction.vy += Math.cos(reaction.butterflyTimer * 3) * 0.1; // ULTRA GENTLE: was 0.2
+                    break;
+                    
+                case 'tornado':
+                    // Tornado spin!
+                    const tornadoRadius = 15; // ULTRA SMALL: was 20
+                    reaction.x += Math.cos(reaction.rotation * 4) * tornadoRadius * 0.03; // ULTRA GENTLE: was 0.05
+                    reaction.rotationSpeed += 0.05; // ULTRA SLOW: was 0.1
+                    this.createTornadoEffect(reaction);
+                    break;
+            }
+        }
+
+        createWallBounceEffect(reaction) {
+            // Cute sparkle burst on wall bounce!
+            for (let i = 0; i < 15; i++) {
+                this.particles.push({
+                    x: reaction.x,
+                    y: reaction.y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: Math.random() * 3 + 1,
+                    color: reaction.color,
+                    life: 1,
+                    decay: 0.02,
+                    sparkle: true,
+                    glow: 15
+                });
+            }
+        }
+
+        createParachuteEffect(reaction) {
+            // Add parachute visual
+            reaction.hasParachute = true;
+            this.createMagicBurst(reaction.x, reaction.y - 30, '#ffffff', 1.5);
+        }
+
+        createMidAirExplosion(reaction) {
+            // Split into multiple smaller reactions!
+            for (let i = 0; i < 4; i++) {
+                const clone = {
+                    ...reaction,
+                    id: Date.now() + Math.random(),
+                    x: reaction.x + (Math.random() - 0.5) * 20,
+                    y: reaction.y + (Math.random() - 0.5) * 20,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    size: reaction.size * 0.6,
+                    behavior: 'normal',
+                    content: ['💥', '✨', '🌟', '💫'][i],
+                    trail: []
+                };
+                this.reactions.push(clone);
+            }
+            
+            // Explosion particles
+            this.createMagicBurst(reaction.x, reaction.y, reaction.color, 3);
+        }
+
+        createRocketTrail(reaction) {
+            // Rocket exhaust trail!
+            for (let i = 0; i < 8; i++) {
+                this.particles.push({
+                    x: reaction.x + (Math.random() - 0.5) * 10,
+                    y: reaction.y + 15,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: Math.random() * 5 + 2,
+                    size: Math.random() * 4 + 2,
+                    color: ['#ff4444', '#ffaa00', '#ffffff'][Math.floor(Math.random() * 3)],
+                    life: 1,
+                    decay: 0.025,
+                    sparkle: true,
+                    glow: 10
+                });
+            }
+        }
+
+        createTornadoEffect(reaction) {
+            // Swirling particles around reaction
+            if (Math.random() < 0.3) {
+                const angle = reaction.rotation * 4;
+                this.particles.push({
+                    x: reaction.x + Math.cos(angle) * 20,
+                    y: reaction.y + Math.sin(angle) * 20,
+                    vx: Math.cos(angle + Math.PI/2) * 3,
+                    vy: Math.sin(angle + Math.PI/2) * 3,
+                    size: 2,
+                    color: reaction.color,
+                    life: 1,
+                    decay: 0.02,
+                    sparkle: true,
+                    glow: 8
+                });
+            }
+        }
+
+        onMagicalCeilingHit(reaction) {
+            if (reaction.value >= 50) {
+                this.createMegaCeilingExplosion(reaction.x, reaction.y);
+                this.triggerScreenShake(40);
+                this.triggerScreenFlash('#FFD700', 1.0);
+                if (reaction.username) {
+                    this.createHologramName(reaction.username, reaction.x, reaction.y);
+                }
+            } else if (reaction.value >= 20) {
+                this.createPowerCeilingExplosion(reaction.x, reaction.y, reaction.color);
+                this.triggerScreenShake(25);
+                this.triggerScreenFlash(reaction.color, 0.7);
+                if (reaction.username) {
+                    this.createHologramName(reaction.username, reaction.x, reaction.y);
+                }
+            } else if (reaction.value >= 10) {
+                this.createSpecialCeilingExplosion(reaction.x, reaction.y, reaction.color);
+                this.triggerScreenShake(15);
+                if (reaction.username) {
+                    this.createHologramName(reaction.username, reaction.x, reaction.y);
+                }
+            } else {
+                this.createBasicCeilingExplosion(reaction.x, reaction.y, reaction.color);
+            }
+        }
+
+        createMegaCeilingExplosion(x, y) {
+            for (let wave = 0; wave < 5; wave++) {  /* MORE WAVES: was 3 */
+                setTimeout(() => {
+                    for (let i = 0; i < 100; i++) {  /* MORE PARTICLES: was 60 */
+                        const angle = (Math.PI * 2 * i) / 100;
+                        const speed = 12 + Math.random() * 12;  /* FASTER: was 8 + 8 */
+                        this.particles.push({
+                            x: x,
+                            y: y,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed,
+                            size: 6 + Math.random() * 4,  /* BIGGER: was 4 + 3 */
+                            color: wave % 2 === 0 ? '#FFD700' : '#FF69B4',
+                            life: 1,
+                            decay: 0.006,  /* LONGER: was 0.008 */
+                            gravity: 0.15,
+                            sparkle: true,
+                            glow: 35  /* MORE GLOW: was 25 */
+                        });
+                    }
+                }, wave * 80);  /* FASTER waves: was 120 */
+            }
+        }
+
+        createPowerCeilingExplosion(x, y, color) {
+            for (let i = 0; i < 80; i++) {
+                const angle = (Math.PI * 2 * i) / 20;
+                const speed = 6 + Math.random() * 10;
+                this.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 4 + Math.random() * 2,
+                    color: color,
+                    life: 1,
+                    decay: 0.012,
+                    gravity: 0.18,
+                    sparkle: true,
+                    glow: 20
+                });
+            }
+        }
+
+        createSpecialCeilingExplosion(x, y, color) {
+            for (let i = 0; i < 50; i++) {
+                const angle = (Math.PI * 2 * i) / 15;
+                const speed = 4 + Math.random() * 8;
+                this.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 3 + Math.random() * 2,
+                    color: color,
+                    life: 1,
+                    decay: 0.015,
+                    gravity: 0.2,
+                    sparkle: true,
+                    glow: 18
+                });
+            }
+        }
+
+        createBasicCeilingExplosion(x, y, color) {
+            for (let i = 0; i < 50; i++) {
+                const angle = (Math.PI * 2 * i) / 10;
+                const speed = 4 + Math.random() * 10;
+                this.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 3 + Math.random() * 2,
+                    color: color,
+                    life: 1,
+                    decay: 0.015,
+                    gravity: 0.25,
+                    sparkle: true,
+                    glow: 15
+                });
+            }
+        }
+
+        createFinalExplosion(x, y, color, intensity) {
+            for (let i = 0; i < 60 * intensity; i++) {
+                this.particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 20 * intensity,
+                    vy: (Math.random() - 0.5) * 20 * intensity,
+                    size: Math.random() * 5 + 2,
+                    color: color,
+                    life: 1,
+                    decay: 0.012,
+                    gravity: 0.2,
+                    sparkle: true,
+                    glow: 18
+                });
+            }
+        }
+
+        createHologramName(username, x, y) {
+            if (window.hologramEngine) {
+                window.hologramEngine.createHologram(username, x, y);
+            }
+        }
+
+        draw() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.drawMagicParticles();
+            this.drawParticles();
+            this.drawReactions();
+        }
+
+        drawMagicParticles() {
+            this.magicParticles.forEach((particle, index) => {
+                if (particle.life <= 0) {
+                    this.magicParticles.splice(index, 1);
+                    return;
+                }
+                
+                this.ctx.save();
+                this.ctx.globalAlpha = particle.life;
+                this.ctx.fillStyle = particle.color;
+                this.ctx.shadowBlur = 15;
+                this.ctx.shadowColor = particle.color;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.restore();
+                
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life -= particle.decay;
+            });
+        }
+
+        drawParticles() {
+            this.particles.forEach((particle, index) => {
+                if (particle.life <= 0) {
+                    this.particles.splice(index, 1);
+                    return;
+                }
+                
+                this.ctx.save();
+                this.ctx.globalAlpha = particle.life;
+                this.ctx.fillStyle = particle.color;
+                
+                if (particle.sparkle) {
+                    this.ctx.shadowBlur = particle.glow || 20;
+                    this.ctx.shadowColor = particle.color;
+                }
+                
+                this.ctx.beginPath();
+                this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.restore();
+                
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life -= particle.decay;
+                
+                if (particle.gravity) {
+                    particle.vy += particle.gravity;
+                }
+            });
+        }
+
+        drawReactions() {
+            this.reactions.forEach((reaction, index) => {
+                // Draw magical trail
+                reaction.trail.forEach((point, i) => {
+                    this.ctx.save();
+                    this.ctx.globalAlpha = point.life * 0.4;
+                    this.ctx.fillStyle = reaction.color;
+                    if (point.glow) {
+                        this.ctx.shadowBlur = point.glow;
+                        this.ctx.shadowColor = reaction.color;
+                    }
+                    this.ctx.beginPath();
+                    this.ctx.arc(point.x, point.y, point.size || 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+                });
+                
+                // Draw parachute if deployed!
+                if (reaction.hasParachute) {
+                    this.drawParachute(reaction);
+                }
+                
+                this.ctx.save();
+                this.ctx.translate(reaction.x, reaction.y);
+                this.ctx.rotate(reaction.rotation);
+                this.ctx.globalAlpha = reaction.opacity;
+                
+                // Enhanced glow effects based on behavior
+                if (reaction.glow) {
+                    this.ctx.shadowBlur = reaction.glow + (reaction.behavior === 'tornado' ? 10 : 0);
+                    this.ctx.shadowColor = reaction.color;
+                }
+                
+                // Special visual effects based on behavior
+                if (reaction.behavior === 'spin') {
+                    // Add spinning trail effect
+                    this.ctx.shadowBlur = 20;
+                    this.ctx.shadowColor = reaction.color;
+                }
+                
+                if (reaction.type === 'money') {
+                    this.drawMoneyBill(reaction);
+                } else {
+                    // Enhanced emoji rendering with behavior effects
+                    this.ctx.font = `bold ${reaction.size}px Arial`;
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillStyle = reaction.color;
+                    
+                    // Add extra effects for certain behaviors
+                    if (reaction.behavior === 'rocket') {
+                        this.ctx.fillStyle = '#ffaa00'; // Rocket glow
+                        this.ctx.shadowBlur = 25;
+                    }
+                    
+                    this.ctx.fillText(reaction.content, 0, 0);
+                }
+                
+                this.ctx.restore();
+                
+                this.updateReaction(reaction, index);
+            });
+        }
+
+        drawParachute(reaction) {
+            this.ctx.save();
+            this.ctx.globalAlpha = reaction.opacity * 0.8;
+            
+            // Parachute canopy (half circle above reaction)
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.strokeStyle = reaction.color;
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.arc(reaction.x, reaction.y - 40, 25, 0, Math.PI, true);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            // Parachute lines
+            this.ctx.strokeStyle = reaction.color;
+            this.ctx.lineWidth = 1;
+            for (let i = 0; i < 4; i++) {
+                const angle = (Math.PI / 3) * i - Math.PI/2;
+                const lineX = reaction.x + Math.cos(angle) * 20;
+                const lineY = reaction.y - 40 + Math.sin(angle) * 20;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(lineX, lineY);
+                this.ctx.lineTo(reaction.x, reaction.y - 10);
+                this.ctx.stroke();
+            }
+            
+            this.ctx.restore();
+        }
+
+        drawMoneyBill(reaction) {
+            const width = reaction.size * 1.5;
+            const height = reaction.size * 0.8;
+            
+            this.ctx.fillStyle = '#228B22';
+            this.ctx.fillRect(-width/2, -height/2, width, height);
+            
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.font = `bold ${reaction.size * 0.4}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(`$${reaction.value}`, 0, 0);
+        }
+
+        triggerScreenShake(intensity) {
+            const body = document.body;
+            let shakeTime = 0;
+            const maxShakes = Math.min(intensity, 15);
+            
+            const shake = () => {
+                if (shakeTime < maxShakes) {
+                    const x = (Math.random() - 0.5) * intensity * 0.5;
+                    const y = (Math.random() - 0.5) * intensity * 0.5;
+                    body.style.transform = `translate(${x}px, ${y}px)`;
+                    shakeTime++;
+                    requestAnimationFrame(shake);
+                } else {
+                    body.style.transform = 'translate(0, 0)';
+                }
+            };
+            shake();
+        }
+
+        triggerScreenFlash(color, opacity) {
+            const flash = document.createElement('div');
+            flash.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: ${color};
+                opacity: ${opacity};
+                pointer-events: none;
+                z-index: 9999;
+            `;
+            document.body.appendChild(flash);
+            
+            setTimeout(() => {
+                flash.style.transition = 'opacity 0.5s';
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 500);
+            }, 100);
+        }
+
+        start() {
+            const animate = () => {
+                this.draw();
+                this.animationId = requestAnimationFrame(animate);
+            };
+            animate();
+        }
+
+        stop() {
+            if (this.animationId) {
+                cancelAnimationFrame(this.animationId);
+                this.animationId = null;
+            }
+        }
+    }
+
+    // Hologram Engine for username reveals
+    class HologramEngine {
+        constructor(canvas) {
+            this.canvas = canvas;
+            this.ctx = canvas.getContext('2d');
+            this.holograms = [];
+            this.animationId = null;
+        }
+
+        createHologram(username, x, y) {
+            const hologram = {
+                id: Date.now() + Math.random(),
+                username: username,
+                x: x,
+                y: y,
+                opacity: 0,
+                phase: 'materializing',
+                scanLines: [],
+                particles: [],
+                life: 1,
+                size: 0,
+                targetSize: 20,
+                rotation: 0,
+                glitchOffset: 0
+            };
+
+            for (let i = 0; i < 10; i++) {
+                hologram.scanLines.push({
+                    y: y + (Math.random() - 0.5) * 100,
+                    speed: Math.random() * 2 + 1,
+                    opacity: Math.random()
+                });
+            }
+
+            for (let i = 0; i < 30; i++) {
+                hologram.particles.push({
+                    x: x + (Math.random() - 0.5) * 80,
+                    y: y + (Math.random() - 0.5) * 80,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    life: 1,
+                    decay: 0.01
+                });
+            }
+
+            this.holograms.push(hologram);
+        }
+
+        updateHolograms() {
+            this.holograms.forEach((hologram, index) => {
+                switch (hologram.phase) {
+                    case 'materializing':
+                        hologram.opacity += 0.05;
+                        hologram.size += 1;
+                        hologram.glitchOffset = Math.sin(Date.now() * 0.01) * 5;
+                        
+                        if (hologram.opacity >= 1) {
+                            hologram.phase = 'stable';
+                        }
+                        break;
+                        
+                    case 'stable':
+                        hologram.rotation += 0.02;
+                        hologram.glitchOffset = Math.sin(Date.now() * 0.02) * 2;
+                        
+                        setTimeout(() => {
+                            if (hologram.phase === 'stable') {
+                                hologram.phase = 'fading';
+                            }
+                        }, 3000);
+                        break;
+                        
+                    case 'fading':
+                        hologram.opacity -= 0.03;
+                        hologram.size -= 0.5;
+                        
+                        if (hologram.opacity <= 0) {
+                            this.holograms.splice(index, 1);
+                        }
+                        break;
+                }
+
+                hologram.scanLines.forEach(line => {
+                    line.y += line.speed;
+                    if (line.y > hologram.y + 50) {
+                        line.y = hologram.y - 50;
+                    }
+                });
+
+                hologram.particles.forEach((particle, pIndex) => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.life -= particle.decay;
+                    
+                    if (particle.life <= 0) {
+                        hologram.particles.splice(pIndex, 1);
+                    }
+                });
+            });
+        }
+
+        drawHolograms() {
+            this.holograms.forEach(hologram => {
+                this.ctx.save();
+                this.ctx.globalAlpha = hologram.opacity;
+                
+                hologram.particles.forEach(particle => {
+                    this.ctx.save();
+                    this.ctx.globalAlpha = particle.life * hologram.opacity;
+                    this.ctx.fillStyle = '#00ffff';
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.shadowColor = '#00ffff';
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, 1, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+                });
+
+                hologram.scanLines.forEach(line => {
+                    this.ctx.save();
+                    this.ctx.globalAlpha = line.opacity * hologram.opacity;
+                    this.ctx.strokeStyle = '#00ffff';
+                    this.ctx.lineWidth = 1;
+                    this.ctx.shadowBlur = 5;
+                    this.ctx.shadowColor = '#00ffff';
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(hologram.x - 100, line.y);
+                    this.ctx.lineTo(hologram.x + 100, line.y);
+                    this.ctx.stroke();
+                    this.ctx.restore();
+                });
+
+                this.ctx.save();
+                this.ctx.translate(hologram.x + hologram.glitchOffset, hologram.y);
+                this.ctx.rotate(hologram.rotation);
+                this.ctx.font = `bold ${hologram.size}px Arial`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillStyle = '#00ffff';
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 1;
+                this.ctx.shadowBlur = 20;
+                this.ctx.shadowColor = '#00ffff';
+                this.ctx.fillText(hologram.username, 0, 0);
+                this.ctx.strokeText(hologram.username, 0, 0);
+                this.ctx.restore();
+                
+                this.ctx.restore();
+            });
+        }
+
+        draw() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.updateHolograms();
+            this.drawHolograms();
+        }
+
+        start() {
+            const animate = () => {
+                this.draw();
+                this.animationId = requestAnimationFrame(animate);
+            };
+            animate();
+        }
+
+        stop() {
+            if (this.animationId) {
+                cancelAnimationFrame(this.animationId);
+                this.animationId = null;
+            }
+        }
+    }
+
+    // Initialize the magical system
+    document.addEventListener('DOMContentLoaded', () => {
+        const reactionCanvas = document.getElementById('reactionCanvas');
+        const hologramCanvas = document.getElementById('hologramCanvas');
+        
+        reactionCanvas.width = window.innerWidth;
+        reactionCanvas.height = window.innerHeight;
+        hologramCanvas.width = window.innerWidth;
+        hologramCanvas.height = window.innerHeight;
+
+        const engine = new MagicalReactionEngine(reactionCanvas);
+        const hologramEngine = new HologramEngine(hologramCanvas);
+        
+        window.hologramEngine = hologramEngine;
+        
+        engine.start();
+        hologramEngine.start();
+
+        // EMOJI ROTATION SYSTEM - Changes every 15 minutes
+        const emojiSets = [
+            // Set 1: Classic vibes
+            [
+                { emoji: '💜', type: 'love' },
+                { emoji: '⚡', type: 'fire' },
+                { emoji: '😅', type: 'laugh' },
+                { emoji: '🔊', type: 'speaker' },
+                { emoji: '🏳️‍🌈', type: 'pride' }
+            ],
+            // Set 2: Party mode
+            [
+                { emoji: '🔥', type: 'fire' },
+                { emoji: '💎', type: 'diamond' },
+                { emoji: '🌟', type: 'star' },
+                { emoji: '🎵', type: 'music' },
+                { emoji: '👑', type: 'crown' }
+            ],
+            // Set 3: NYC vibes
+            [
+                { emoji: '🗽', type: 'liberty' },
+                { emoji: '🌃', type: 'city' },
+                { emoji: '🚖', type: 'taxi' },
+                { emoji: '🎭', type: 'theater' },
+                { emoji: '⭐', type: 'star' }
+            ],
+            // Set 4: Club night
+            [
+                { emoji: '🕺', type: 'dance' },
+                { emoji: '💃', type: 'dance' },
+                { emoji: '🎉', type: 'party' },
+                { emoji: '🥂', type: 'cheers' },
+                { emoji: '✨', type: 'sparkle' }
+            ]
+        ];
+
+        let currentEmojiSet = 0;
+
+        function rotateEmojis() {
+            currentEmojiSet = (currentEmojiSet + 1) % emojiSets.length;
+            const newEmojis = emojiSets[currentEmojiSet];
+            
+            const emojiButtons = document.querySelectorAll('.reaction-btn.glass');
+            emojiButtons.forEach((btn, index) => {
+                if (index < newEmojis.length) {
+                    // Animate the change
+                    btn.style.transform = 'scale(0)';
+                    btn.style.transition = 'transform 0.3s ease';
+                    
+                    setTimeout(() => {
+                        btn.dataset.emoji = newEmojis[index].emoji;
+                        btn.dataset.type = newEmojis[index].type;
+                        btn.textContent = newEmojis[index].emoji;
+                        btn.style.transform = 'scale(1.2)';
+                        
+                        setTimeout(() => {
+                            btn.style.transform = 'scale(1)';
+                        }, 200);
+                    }, 300);
+                }
+            });
+            
+            console.log(`🔄 Emojis rotated to set ${currentEmojiSet + 1}`);
+        }
+
+        // Rotate emojis every 15 minutes (900,000 ms)
+        setInterval(rotateEmojis, 15 * 60 * 1000);
+
+        // Setup reaction buttons
+        document.querySelectorAll('.reaction-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                const emoji = btn.dataset.emoji;
+                const text = btn.dataset.text;
+                const value = parseInt(btn.dataset.value) || 0;
+                const type = btn.dataset.type;
+                
+                const content = emoji || text || btn.textContent;
+                const startX = window.innerWidth / 2;
+                const startY = window.innerHeight - 150;
+                
+                const config = {
+                    x: startX + (Math.random() - 0.5) * 300,  /* WIDER spread: was 200 */
+                    y: startY,
+                    content: content,
+                    type: type,
+                    value: value,
+                    color: getReactionColor(type),
+                    username: value >= 5 ? getRandomUsername() : null  /* LOWER threshold: was 10 */
+                };
+                
+                engine.addReaction(config);
+                
+                // Enhanced button pulse effect
+                btn.style.transform = 'scale(0.7)';  /* MORE dramatic: was 0.8 */
+                btn.style.filter = 'brightness(2)';
+                setTimeout(() => {
+                    btn.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        btn.style.transform = 'scale(1)';
+                        btn.style.filter = 'brightness(1)';
+                    }, 100);
+                }, 150);
+            });
+        });
+
+        function getReactionColor(type) {
+            const colors = {
+                love: '#ff006e',
+                fire: '#ff4500',
+                laugh: '#ffbe0b',
+                skull: '#9370DB',
+                bell: '#FF4500',
+                sparkle: '#00CED1',
+                speaker: '#1E90FF',
+                pride: '#ff006e',
+                jp: '#FFD700',
+                sf: '#ff1493',
+                money: '#32CD32',
+                diamond: '#B9F2FF',
+                star: '#FFD700',
+                music: '#9370DB',
+                crown: '#FFD700',
+                liberty: '#00BFFF',
+                city: '#C0C0C0',
+                taxi: '#FFFF00',
+                theater: '#FF69B4',
+                dance: '#FF1493',
+                party: '#FF6347',
+                cheers: '#FFD700'
+            };
+            return colors[type] || '#ffffff';
+        }
+
+        function getRandomUsername() {
+            const usernames = [
+                'DJ_Lover', 'ClubKing', 'RaveQueen', 'SF_Regular', 'NightOwl', 'BassDrop',
+                'VIP_Guest', 'MixMaster', 'BeatHead', 'NYC_Dancer', 'SoundLover', 'PartyGoer'
+            ];
+            return usernames[Math.floor(Math.random() * usernames.length)];
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            reactionCanvas.width = window.innerWidth;
+            reactionCanvas.height = window.innerHeight;
+            hologramCanvas.width = window.innerWidth;
+            hologramCanvas.height = window.innerHeight;
+        });
+
+        console.log('🎉 INTENSE Magical Reaction System initialized!');
+    });
+</script>

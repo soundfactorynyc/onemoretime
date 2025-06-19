@@ -1,0 +1,334 @@
+---
+// Simple Reaction System - Actually works!
+---
+
+<!-- Reaction Display Area -->
+<div class="reaction-display" id="reactionDisplay">
+  <canvas id="reactionCanvas"></canvas>
+</div>
+
+<!-- Reaction Controls -->
+<div class="reaction-controls">
+  <button class="reaction-btn text-btn" data-reaction="JP" data-tier="free">JP</button>
+  <button class="reaction-btn text-btn" data-reaction="SF" data-tier="free">SF</button>
+  <button class="reaction-btn text-btn" data-reaction="WERK" data-tier="free">WERK</button>
+  <button class="reaction-btn" data-reaction="�" data-tier="free">�</button>
+  <button class="reaction-btn" data-reaction="🏳️‍🌈" data-tier="free">🏳️‍🌈</button>
+  <button class="reaction-btn" data-reaction="✨" data-tier="paid">✨</button>
+  <button class="money-btn" data-reaction="$1" data-tier="money" data-value="1">$1</button>
+  <button class="money-btn" data-reaction="$5" data-tier="money" data-value="5">$5</button>
+  <button class="money-btn" data-reaction="$10" data-tier="money" data-value="10">$10</button>
+  <button class="money-btn" data-reaction="$20" data-tier="money" data-value="20">$20</button>
+  <button class="money-btn" data-reaction="$50" data-tier="money" data-value="50">$50</button>
+  <button class="money-btn" data-reaction="$100" data-tier="money" data-value="100">$100</button>
+</div>
+
+<style>
+  .reaction-display {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  #reactionCanvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .reaction-controls {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    z-index: 1001;
+  }
+
+  .reaction-btn, .money-btn, .nuclear-btn {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2px;
+  }
+  
+  .text-btn {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+
+  .reaction-btn {
+    background: linear-gradient(135deg, #ff006e, #8338ec);
+  }
+
+  .money-btn {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .nuclear-btn {
+    background: linear-gradient(135deg, #ff0000, #8b0000);
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  .reaction-btn:hover, .money-btn:hover, .nuclear-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .reaction-btn:active, .money-btn:active, .nuclear-btn:active {
+    transform: scale(0.9);
+  }
+</style>
+
+<script>
+  class SimpleReactionEngine {
+    constructor() {
+      this.canvas = document.getElementById('reactionCanvas');
+      this.ctx = this.canvas.getContext('2d');
+      this.reactions = [];
+      this.particles = [];
+      this.animationId = null;
+      
+      this.init();
+    }
+
+    init() {
+      this.resizeCanvas();
+      window.addEventListener('resize', () => this.resizeCanvas());
+      this.setupControls();
+      this.start();
+    }
+
+    resizeCanvas() {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
+
+    setupControls() {
+      document.querySelectorAll('.reaction-btn, .money-btn, .nuclear-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const reaction = btn.dataset.reaction;
+          const tier = btn.dataset.tier;
+          const value = parseInt(btn.dataset.value) || 0;
+          
+          this.shootReaction(reaction, tier, value);
+        });
+      });
+    }
+
+    shootReaction(content, tier, value = 0) {
+      const startX = this.canvas.width / 2 + (Math.random() - 0.5) * 200;
+      const startY = this.canvas.height - 100; // Start near bottom
+      
+      const reaction = {
+        content: content,
+        x: startX,
+        y: startY,
+        vx: (Math.random() - 0.5) * 3, // Less horizontal drift
+        vy: -12 - (value * 0.2), // Stronger upward velocity, scales with value
+        size: this.getSize(tier, value),
+        color: this.getColor(tier),
+        opacity: 1,
+        rotation: 0,
+        rotationSpeed: (Math.random() - 0.5) * 0.3,
+        tier: tier,
+        value: value,
+        life: 1,
+        gravity: 0.3 // Add gravity to create arc
+      };
+
+      this.reactions.push(reaction);
+      this.createEffects(reaction);
+    }
+
+    getSize(tier, value) {
+      switch(tier) {
+        case 'free': return 30;
+        case 'paid': return 40;
+        case 'money': return 40 + (value * 0.5);
+        case 'nuclear': return 80 + (value * 0.1);
+        default: return 30;
+      }
+    }
+
+    getColor(tier) {
+      switch(tier) {
+        case 'free': return '#ffffff';
+        case 'paid': return '#ffd700';
+        case 'money': return '#00ff00';
+        case 'nuclear': return '#ff0000';
+        default: return '#ffffff';
+      }
+    }
+
+    createEffects(reaction) {
+      // Create particles based on tier
+      const particleCount = reaction.tier === 'nuclear' ? 50 : 
+                           reaction.tier === 'money' ? 20 : 10;
+      
+      for (let i = 0; i < particleCount; i++) {
+        this.particles.push({
+          x: reaction.x,
+          y: reaction.y,
+          vx: (Math.random() - 0.5) * 8,
+          vy: (Math.random() - 0.5) * 8,
+          size: Math.random() * 3 + 1,
+          color: reaction.color,
+          life: 1,
+          decay: 0.02
+        });
+      }
+
+      // Nuclear effects
+      if (reaction.tier === 'nuclear') {
+        this.screenShake();
+        this.screenFlash();
+      }
+    }
+
+    screenShake() {
+      let shakeCount = 0;
+      const maxShakes = 20;
+      
+      const shake = () => {
+        if (shakeCount < maxShakes) {
+          const x = (Math.random() - 0.5) * 20;
+          const y = (Math.random() - 0.5) * 20;
+          document.body.style.transform = `translate(${x}px, ${y}px)`;
+          shakeCount++;
+          requestAnimationFrame(shake);
+        } else {
+          document.body.style.transform = 'translate(0, 0)';
+        }
+      };
+      shake();
+    }
+
+    screenFlash() {
+      const flash = document.createElement('div');
+      flash.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(255, 0, 0, 0.5);
+        pointer-events: none;
+        z-index: 9999;
+      `;
+      document.body.appendChild(flash);
+      
+      setTimeout(() => {
+        flash.style.transition = 'opacity 0.5s';
+        flash.style.opacity = '0';
+        setTimeout(() => flash.remove(), 500);
+      }, 100);
+    }
+
+    update() {
+      // Update reactions
+      this.reactions.forEach((reaction, index) => {
+        reaction.x += reaction.vx;
+        reaction.y += reaction.vy;
+        reaction.vy += reaction.gravity || 0.3; // Apply gravity (arc effect)
+        reaction.rotation += reaction.rotationSpeed;
+        reaction.life -= 0.005;
+
+        // Remove if off screen or life expired
+        if (reaction.y > this.canvas.height + 100 || reaction.life <= 0) {
+          this.reactions.splice(index, 1);
+        }
+      });
+
+      // Update particles
+      this.particles.forEach((particle, index) => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.life -= particle.decay;
+
+        if (particle.life <= 0) {
+          this.particles.splice(index, 1);
+        }
+      });
+    }
+
+    draw() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      // Draw particles
+      this.particles.forEach(particle => {
+        this.ctx.save();
+        this.ctx.globalAlpha = particle.life;
+        this.ctx.fillStyle = particle.color;
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowColor = particle.color;
+        this.ctx.beginPath();
+        this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      });
+
+      // Draw reactions
+      this.reactions.forEach(reaction => {
+        this.ctx.save();
+        this.ctx.translate(reaction.x, reaction.y);
+        this.ctx.rotate(reaction.rotation);
+        this.ctx.globalAlpha = reaction.life;
+        
+        // Add glow for higher tiers
+        if (reaction.tier !== 'free') {
+          this.ctx.shadowBlur = 20;
+          this.ctx.shadowColor = reaction.color;
+        }
+
+        this.ctx.font = `bold ${reaction.size}px Arial`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillStyle = reaction.color;
+        this.ctx.fillText(reaction.content, 0, 0);
+        
+        this.ctx.restore();
+      });
+    }
+
+    start() {
+      const animate = () => {
+        this.update();
+        this.draw();
+        this.animationId = requestAnimationFrame(animate);
+      };
+      animate();
+    }
+
+    stop() {
+      if (this.animationId) {
+        cancelAnimationFrame(this.animationId);
+      }
+    }
+  }
+
+  // Initialize when page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    window.reactionEngine = new SimpleReactionEngine();
+  });
+</script>

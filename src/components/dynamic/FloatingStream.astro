@@ -1,0 +1,311 @@
+---
+// FloatingStream.astro - Floating, draggable live stream window
+export interface Props {
+  streamUrl?: string;
+  title?: string;
+}
+
+const { streamUrl = "https://demo.owncast.com", title = "Live Stream" } = Astro.props;
+---
+
+<div class="floating-stream" id="floating-stream">
+  <div class="stream-header">
+    <span class="stream-title">{title}</span>
+    <div class="stream-controls">
+      <button class="minimize-btn" id="minimize-stream">−</button>
+      <button class="close-btn" id="close-stream">×</button>
+    </div>
+  </div>
+  <div class="stream-content" id="stream-content">
+    <iframe 
+      src={streamUrl} 
+      frameborder="0" 
+      allowfullscreen
+      class="stream-iframe"
+    ></iframe>
+  </div>
+  <div class="resize-handle" id="resize-handle"></div>
+</div>
+
+<style>
+.floating-stream {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 280px;
+  height: 200px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: move;
+}
+
+.floating-stream.minimized {
+  height: 40px;
+}
+
+.floating-stream.minimized .stream-content {
+  display: none;
+}
+
+.stream-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #333;
+  cursor: move;
+}
+
+.stream-title {
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.stream-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.minimize-btn,
+.close-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.minimize-btn:hover {
+  background: rgba(255, 193, 7, 0.8);
+}
+
+.close-btn:hover {
+  background: rgba(220, 53, 69, 0.8);
+}
+
+.stream-content {
+  width: 100%;
+  height: calc(100% - 40px);
+  position: relative;
+}
+
+.stream-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(-45deg, transparent 0%, transparent 30%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.3) 70%, transparent 70%);
+  cursor: nw-resize;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .floating-stream {
+    width: 240px;
+    height: 160px;
+    top: 60px;
+    right: 10px;
+  }
+  
+  .stream-title {
+    font-size: 11px;
+  }
+  
+  .minimize-btn,
+  .close-btn {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .floating-stream {
+    width: 200px;
+    height: 140px;
+    top: 50px;
+    right: 5px;
+  }
+}
+</style>
+
+<script>
+class FloatingStreamController {
+  constructor() {
+    this.streamElement = document.getElementById('floating-stream');
+    this.streamContent = document.getElementById('stream-content');
+    this.resizeHandle = document.getElementById('resize-handle');
+    this.minimizeBtn = document.getElementById('minimize-stream');
+    this.closeBtn = document.getElementById('close-stream');
+    
+    this.isDragging = false;
+    this.isResizing = false;
+    this.isMinimized = false;
+    this.dragOffset = { x: 0, y: 0 };
+    this.startSize = { width: 0, height: 0 };
+    this.startPos = { x: 0, y: 0 };
+    
+    this.init();
+  }
+  
+  init() {
+    if (!this.streamElement) return;
+    
+    this.setupDragging();
+    this.setupResizing();
+    this.setupControls();
+    this.setupTouchEvents();
+  }
+  
+  setupDragging() {
+    const header = this.streamElement.querySelector('.stream-header');
+    
+    header.addEventListener('mousedown', (e) => this.startDrag(e));
+    document.addEventListener('mousemove', (e) => this.drag(e));
+    document.addEventListener('mouseup', () => this.stopDrag());
+  }
+  
+  setupResizing() {
+    this.resizeHandle.addEventListener('mousedown', (e) => this.startResize(e));
+    document.addEventListener('mousemove', (e) => this.resize(e));
+    document.addEventListener('mouseup', () => this.stopResize());
+  }
+  
+  setupControls() {
+    this.minimizeBtn.addEventListener('click', () => this.toggleMinimize());
+    this.closeBtn.addEventListener('click', () => this.close());
+  }
+  
+  setupTouchEvents() {
+    const header = this.streamElement.querySelector('.stream-header');
+    
+    // Touch dragging
+    header.addEventListener('touchstart', (e) => this.startDrag(e.touches[0]), { passive: false });
+    document.addEventListener('touchmove', (e) => this.drag(e.touches[0]), { passive: false });
+    document.addEventListener('touchend', () => this.stopDrag());
+    
+    // Touch resizing
+    this.resizeHandle.addEventListener('touchstart', (e) => this.startResize(e.touches[0]), { passive: false });
+    document.addEventListener('touchmove', (e) => this.resize(e.touches[0]), { passive: false });
+    document.addEventListener('touchend', () => this.stopResize());
+  }
+  
+  startDrag(e) {
+    if (e.target.closest('.stream-controls')) return;
+    
+    this.isDragging = true;
+    const rect = this.streamElement.getBoundingClientRect();
+    this.dragOffset.x = e.clientX - rect.left;
+    this.dragOffset.y = e.clientY - rect.top;
+    
+    this.streamElement.style.transition = 'none';
+    e.preventDefault();
+  }
+  
+  drag(e) {
+    if (!this.isDragging) return;
+    
+    const x = e.clientX - this.dragOffset.x;
+    const y = e.clientY - this.dragOffset.y;
+    
+    // Keep within viewport bounds
+    const maxX = window.innerWidth - this.streamElement.offsetWidth;
+    const maxY = window.innerHeight - this.streamElement.offsetHeight;
+    
+    const boundedX = Math.max(0, Math.min(x, maxX));
+    const boundedY = Math.max(0, Math.min(y, maxY));
+    
+    this.streamElement.style.left = `${boundedX}px`;
+    this.streamElement.style.top = `${boundedY}px`;
+    this.streamElement.style.right = 'auto';
+    
+    e.preventDefault();
+  }
+  
+  stopDrag() {
+    if (!this.isDragging) return;
+    
+    this.isDragging = false;
+    this.streamElement.style.transition = 'all 0.3s ease';
+  }
+  
+  startResize(e) {
+    if (this.isMinimized) return;
+    
+    this.isResizing = true;
+    this.startSize.width = this.streamElement.offsetWidth;
+    this.startSize.height = this.streamElement.offsetHeight;
+    this.startPos.x = e.clientX;
+    this.startPos.y = e.clientY;
+    
+    this.streamElement.style.transition = 'none';
+    e.preventDefault();
+  }
+  
+  resize(e) {
+    if (!this.isResizing) return;
+    
+    const deltaX = e.clientX - this.startPos.x;
+    const deltaY = e.clientY - this.startPos.y;
+    
+    const newWidth = Math.max(200, this.startSize.width + deltaX);
+    const newHeight = Math.max(140, this.startSize.height + deltaY);
+    
+    this.streamElement.style.width = `${newWidth}px`;
+    this.streamElement.style.height = `${newHeight}px`;
+    
+    e.preventDefault();
+  }
+  
+  stopResize() {
+    if (!this.isResizing) return;
+    
+    this.isResizing = false;
+    this.streamElement.style.transition = 'all 0.3s ease';
+  }
+  
+  toggleMinimize() {
+    this.isMinimized = !this.isMinimized;
+    this.streamElement.classList.toggle('minimized', this.isMinimized);
+    this.minimizeBtn.textContent = this.isMinimized ? '+' : '−';
+  }
+  
+  close() {
+    this.streamElement.style.display = 'none';
+  }
+  
+  show() {
+    this.streamElement.style.display = 'block';
+  }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  new FloatingStreamController();
+});
+</script>
