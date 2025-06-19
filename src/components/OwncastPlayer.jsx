@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import TouchWaterEffect from './sound/TouchWaterEffect';
 
 const OwncastPlayer = ({ 
   isFullScreen = false, 
@@ -52,49 +53,105 @@ const OwncastPlayer = ({
     }
   };
 
-  // Floating window dragging
+  // Floating window dragging with smoother movement
   const handleMouseDown = (e) => {
-    if (!isFloating) return;
+    if (!isFloating || e.target.closest('.resize-handle')) return;
     setIsDragging(true);
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    
     e.preventDefault();
+    
+    // Store the offset for smoother dragging
+    containerRef.current.dragOffset = { x: offsetX, y: offsetY };
   };
 
   const handleMouseMove = (e) => {
-    if (!isDragging || !isFloating) return;
-    setPosition({
-      x: e.clientX - size.width / 2,
-      y: e.clientY - size.height / 2
-    });
+    if (!isDragging || !isFloating || !containerRef.current.dragOffset) return;
+    
+    const { x: offsetX, y: offsetY } = containerRef.current.dragOffset;
+    
+    // Calculate new position with bounds checking
+    const newX = Math.max(0, Math.min(window.innerWidth - size.width, e.clientX - offsetX));
+    const newY = Math.max(0, Math.min(window.innerHeight - size.height, e.clientY - offsetY));
+    
+    setPosition({ x: newX, y: newY });
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    if (containerRef.current) {
+      delete containerRef.current.dragOffset;
+    }
   };
 
-  // Resize handles for floating mode
+  // Enhanced resize handling with smoother movement and constraints
   const handleResize = (e, direction) => {
     if (!isFloating) return;
     e.preventDefault();
+    e.stopPropagation();
     setIsResizing(true);
     
     const startX = e.clientX;
     const startY = e.clientY;
     const startWidth = size.width;
     const startHeight = size.height;
+    const startPosX = position.x;
+    const startPosY = position.y;
 
     const onMouseMove = (moveEvent) => {
       const deltaX = moveEvent.clientX - startX;
       const deltaY = moveEvent.clientY - startY;
       
+      // Apply damping factor to make resizing slower and more controlled
+      const dampingFactor = 0.7;
+      const smoothDeltaX = deltaX * dampingFactor;
+      const smoothDeltaY = deltaY * dampingFactor;
+      
       let newWidth = startWidth;
       let newHeight = startHeight;
+      let newPosX = startPosX;
+      let newPosY = startPosY;
 
-      if (direction.includes('right')) newWidth = Math.max(200, startWidth + deltaX);
-      if (direction.includes('left')) newWidth = Math.max(200, startWidth - deltaX);
-      if (direction.includes('bottom')) newHeight = Math.max(150, startHeight + deltaY);
-      if (direction.includes('top')) newHeight = Math.max(150, startHeight - deltaY);
+      // Apply constraints and smooth resizing
+      if (direction.includes('right')) {
+        newWidth = Math.max(250, Math.min(800, startWidth + smoothDeltaX));
+      }
+      if (direction.includes('left')) {
+        const proposedWidth = Math.max(250, Math.min(800, startWidth - smoothDeltaX));
+        const widthDiff = proposedWidth - startWidth;
+        newWidth = proposedWidth;
+        newPosX = Math.max(0, startPosX - widthDiff);
+      }
+      if (direction.includes('bottom')) {
+        newHeight = Math.max(180, Math.min(600, startHeight + smoothDeltaY));
+      }
+      if (direction.includes('top')) {
+        const proposedHeight = Math.max(180, Math.min(600, startHeight - smoothDeltaY));
+        const heightDiff = proposedHeight - startHeight;
+        newHeight = proposedHeight;
+        newPosY = Math.max(0, startPosY - heightDiff);
+      }
+
+      // Maintain aspect ratio option (16:9)
+      if (e.shiftKey) {
+        const aspectRatio = 16 / 9;
+        if (direction.includes('right') || direction.includes('left')) {
+          newHeight = newWidth / aspectRatio;
+        } else {
+          newWidth = newHeight * aspectRatio;
+        }
+      }
+
+      // Ensure the player stays within window bounds
+      newPosX = Math.max(0, Math.min(window.innerWidth - newWidth, newPosX));
+      newPosY = Math.max(0, Math.min(window.innerHeight - newHeight, newPosY));
 
       setSize({ width: newWidth, height: newHeight });
+      setPosition({ x: newPosX, y: newPosY });
+      
       if (onResize) onResize({ width: newWidth, height: newHeight });
     };
 
@@ -131,7 +188,9 @@ const OwncastPlayer = ({
     overflow: 'hidden',
     boxShadow: isFloating ? '0 8px 32px rgba(0, 255, 255, 0.3)' : 'none',
     border: isFloating ? '2px solid rgba(0, 255, 255, 0.4)' : 'none',
-    cursor: isDragging ? 'grabbing' : isFloating ? 'grab' : 'default'
+    cursor: isDragging ? 'grabbing' : isFloating ? 'grab' : 'default',
+    transition: isDragging || isResizing ? 'none' : 'all 0.2s ease-out',
+    userSelect: 'none'
   };
 
   const videoStyle = {
@@ -175,6 +234,21 @@ const OwncastPlayer = ({
         <source src={streamUrl} type="application/x-mpegURL" />
         <p>Your browser doesn't support live streaming.</p>
       </video>
+
+      {/* TouchWaterEffect Overlay - Only in Full Screen */}
+      {isFullScreen && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 10,
+          pointerEvents: 'auto'
+        }}>
+          <TouchWaterEffect />
+        </div>
+      )}
 
       {/* Live Indicator */}
       <div style={{

@@ -24,21 +24,32 @@ const ModeManager = () => {
       targetElement.style.display = 'block';
     }
 
-    // Special handling for TikTok mode - hide homebase
+    // Handle TikTok player and homebase visibility based on mode
     const homebase = document.querySelector('.homebase-container');
     const tikTokPlayer = document.querySelector('[data-tiktok-player]');
     const gridSystem = document.getElementById('harmonyOverlaySystem');
 
-    if (newMode === 'tiktok') {
-      // Hide homebase and grid system for pure TikTok mode
-      if (homebase) homebase.style.display = 'none';
-      if (gridSystem) gridSystem.style.display = 'none';
-      if (tikTokPlayer) tikTokPlayer.style.zIndex = '1000';
-    } else {
-      // Show homebase and grid system for other modes
+    if (newMode === 'owncast') {
+      // OWNCAST MODE: Hide TikTok player, show homebase and grid
+      if (tikTokPlayer) tikTokPlayer.style.display = 'none';
       if (homebase) homebase.style.display = 'block';
       if (gridSystem) gridSystem.style.display = 'block';
-      if (tikTokPlayer) tikTokPlayer.style.zIndex = '500';
+    } else if (newMode === 'tiktok') {
+      // TIKTOK MODE: Show TikTok player, hide homebase and grid
+      if (tikTokPlayer) {
+        tikTokPlayer.style.display = 'block';
+        tikTokPlayer.style.zIndex = '1000';
+      }
+      if (homebase) homebase.style.display = 'none';
+      if (gridSystem) gridSystem.style.display = 'none';
+    } else {
+      // MIXED MODE: Show everything
+      if (tikTokPlayer) {
+        tikTokPlayer.style.display = 'block';
+        tikTokPlayer.style.zIndex = '500';
+      }
+      if (homebase) homebase.style.display = 'block';
+      if (gridSystem) gridSystem.style.display = 'block';
     }
   };
 

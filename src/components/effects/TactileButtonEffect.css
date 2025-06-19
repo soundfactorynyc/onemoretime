@@ -1,0 +1,116 @@
+/* Tactile Button Effects CSS */
+
+.tactile-button {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tactile-button:active {
+  transform: scale(0.95);
+}
+
+.tactile-effect {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  left: var(--effect-x, 0);
+  top: var(--effect-y, 0);
+}
+
+/* Ripple Effect */
+.tactile-ripple {
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  animation: rippleExpand 0.8s ease-out forwards;
+}
+
+@keyframes rippleExpand {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+  }
+  100% {
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+  }
+}
+
+/* Pump Effect */
+.tactile-pump {
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(0, 255, 0, 0.8) 0%, transparent 70%);
+  animation: pumpBeat 0.8s ease-out forwards;
+}
+
+@keyframes pumpBeat {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* Pulse Effect */
+.tactile-pulse {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 0, 0, 0.8);
+  background: transparent;
+  animation: pulseRing 0.8s ease-out forwards;
+}
+
+@keyframes pulseRing {
+  0% {
+    width: 30px;
+    height: 30px;
+    opacity: 1;
+  }
+  100% {
+    width: 80px;
+    height: 80px;
+    opacity: 0;
+  }
+}
+
+/* Bounce Effect */
+.tactile-bounce {
+  width: 25px;
+  height: 25px;
+  background: rgba(255, 165, 0, 0.8);
+  animation: bounceEffect 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes bounceEffect {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Button hover enhancement */
+.tactile-button:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}

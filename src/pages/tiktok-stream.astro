@@ -39,7 +39,7 @@ import ModeManager from '../components/ModeManager.jsx';
             overscroll-behavior-y: none;
         }
         
-        /* TikTok-style gradient background */
+        /* Pure black background */
         body::before {
             content: '';
             position: fixed;
@@ -47,9 +47,19 @@ import ModeManager from '../components/ModeManager.jsx';
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, rgba(255, 0, 110, 0.05) 0%, rgba(0, 0, 0, 1) 70%);
+            background: #000000;
             z-index: -1;
             pointer-events: none;
+        }
+
+        /* Player containers */
+        .player-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 500;
         }
         
     </style>
@@ -57,6 +67,11 @@ import ModeManager from '../components/ModeManager.jsx';
 <body>
     <!-- MODE MANAGER - Handles three-way switching -->
     <ModeManager client:load />
+
+    <!-- TIKTOK PLAYER CONTAINER -->
+    <div id="tikTokContainer" class="player-container">
+        <NextLevelTikTokPlayer client:load />
+    </div>
 
     <!-- HOMEBASE CONTAINER (Always visible except in TikTok-only mode) -->
     <div class="homebase-container" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 600;">
@@ -298,12 +313,51 @@ import ModeManager from '../components/ModeManager.jsx';
         </div>
     </div>
 
-    <!-- NEXT LEVEL TIKTOK PLAYER (Full Screen) -->
-    <div data-tiktok-player style="position: fixed; top: 0; left: 0; right: 0; height: 100vh; z-index: 500;">
-        <NextLevelTikTokPlayer client:load />
-    </div>
-
     <script>
+        // Mini Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const miniToggle = document.getElementById('miniToggle');
+            const tikTokContainer = document.getElementById('tikTokContainer');
+            const owncastContainer = document.getElementById('owncastContainer');
+            let isOwncast = true; // Start with Owncast mode
+
+            // Set initial toggle state
+            if (miniToggle) {
+                miniToggle.classList.add('owncast');
+            }
+
+            if (miniToggle) {
+                miniToggle.addEventListener('click', function() {
+                    isOwncast = !isOwncast;
+                    console.log('Toggle clicked, isOwncast:', isOwncast);
+                    
+                    if (isOwncast) {
+                        // Switch to Owncast mode
+                        miniToggle.classList.add('owncast');
+                        if (tikTokContainer) {
+                            tikTokContainer.classList.add('hidden');
+                            console.log('TikTok hidden');
+                        }
+                        if (owncastContainer) {
+                            owncastContainer.classList.remove('hidden');
+                            console.log('Owncast shown');
+                        }
+                    } else {
+                        // Switch to TikTok mode
+                        miniToggle.classList.remove('owncast');
+                        if (owncastContainer) {
+                            owncastContainer.classList.add('hidden');
+                            console.log('Owncast hidden');
+                        }
+                        if (tikTokContainer) {
+                            tikTokContainer.classList.remove('hidden');
+                            console.log('TikTok shown');
+                        }
+                    }
+                });
+            }
+        });
+
         // Initialize grid buttons
         function initializeOverlayGrids() {
             for (let gridNum = 1; gridNum <= 3; gridNum++) {
