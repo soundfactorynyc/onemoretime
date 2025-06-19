@@ -15,6 +15,7 @@ const NextLevelTikTokPlayer = () => {
   const [autoScroll, setAutoScroll] = useState(true);
   const [aiMode, setAiMode] = useState(false);
   const [heatmapVisible, setHeatmapVisible] = useState(false);
+  const [chatReactions, setChatReactions] = useState([]);
   
   // Effects states
   const [beatSync, setBeatSync] = useState(false);
@@ -32,6 +33,46 @@ const NextLevelTikTokPlayer = () => {
   
   const containerRef = useRef(null);
   const startY = useRef(0);
+
+  // Function to open grid overlay
+  const openGrid = () => {
+    const fullGridOverlay = document.getElementById('fullGridOverlay');
+    const gridTitle = document.getElementById('gridTitle');
+    
+    if (fullGridOverlay && gridTitle) {
+      gridTitle.textContent = 'Sound Factory Grid';
+      fullGridOverlay.style.display = 'block';
+      setTimeout(() => {
+        fullGridOverlay.style.opacity = '1';
+      }, 10);
+    }
+  };
+
+  // Listen for chat reactions
+  useEffect(() => {
+    const handleChatReaction = (event) => {
+      const { emoji, tier, value } = event.detail;
+      const newReaction = {
+        id: Date.now() + Math.random(),
+        emoji,
+        tier,
+        value,
+        x: Math.random() * (window.innerWidth - 100) + 50,
+        y: window.innerHeight - 100,
+        createdAt: Date.now()
+      };
+      
+      setChatReactions(prev => [...prev, newReaction]);
+      
+      // Remove reaction after animation
+      setTimeout(() => {
+        setChatReactions(prev => prev.filter(r => r.id !== newReaction.id));
+      }, 3000);
+    };
+
+    document.addEventListener('tiktok-reaction', handleChatReaction);
+    return () => document.removeEventListener('tiktok-reaction', handleChatReaction);
+  }, []);
 
   // Sample video data
   const videos = [
@@ -129,13 +170,10 @@ const NextLevelTikTokPlayer = () => {
   const current = videos[currentVideo];
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900 p-4">
-      {/* Mobile Phone Container - 9:16 Aspect Ratio */}
-      <div className="relative w-full max-w-[390px] mx-auto">
-        <div className="relative bg-black rounded-[2.5rem] overflow-hidden shadow-2xl" style={{ aspectRatio: '9/16' }}>
-          {/* Phone Notch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-50" />
-          
+    <div className="w-full h-full flex items-center justify-center bg-black">
+      {/* Full Screen Mobile Container */}
+      <div className="relative w-full h-full">
+        <div className="relative bg-black overflow-hidden w-full h-full">
           {/* Main Video Container */}
           <div
             ref={containerRef}
@@ -241,21 +279,45 @@ const NextLevelTikTokPlayer = () => {
                 </div>
               </div>
 
-              {/* Right Side Actions - Camera, Upload, Effects */}
-              <div className="absolute right-2 bottom-24 space-y-3 z-40">
+              {/* Top Center Actions - Camera, Upload, Effects, Grid */}
+              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 flex items-center gap-3 z-40">
                 {/* Camera Button */}
                 <button className="relative group">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
-                    <Camera className="w-4 h-4 text-white" />
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg">
+                    <Camera className="w-5 h-5 text-white" />
                   </div>
                 </button>
 
                 {/* Upload Button */}
                 <button className="relative group">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
-                    <Upload className="w-4 h-4 text-white" />
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg">
+                    <Upload className="w-5 h-5 text-white" />
                   </div>
                 </button>
+
+                {/* Grid Button */}
+                <button
+                  onClick={openGrid}
+                  className="relative group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg">
+                    <Grid className="w-5 h-5 text-white" />
+                  </div>
+                </button>
+
+                {/* Effects Button */}
+                <button
+                  onClick={() => setShowEffects(!showEffects)}
+                  className="relative group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110 animate-pulse shadow-lg">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                </button>
+              </div>
+
+              {/* Right Side Actions - Comment & Share */}
+              <div className="absolute right-2 bottom-24 space-y-3 z-40">
 
                 {/* Comment */}
                 <button className="relative group">
@@ -271,16 +333,6 @@ const NextLevelTikTokPlayer = () => {
                     <Share2 className="w-4 h-4 text-white/80" />
                   </div>
                   <span className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 text-white text-[9px] font-medium whitespace-nowrap">{current.shares}</span>
-                </button>
-
-                {/* Effects Button */}
-                <button
-                  onClick={() => setShowEffects(!showEffects)}
-                  className="relative group"
-                >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center transition-all duration-300 group-hover:scale-110 animate-pulse">
-                    <Sparkles className="w-4 h-4 text-white" />
-                  </div>
                 </button>
               </div>
 

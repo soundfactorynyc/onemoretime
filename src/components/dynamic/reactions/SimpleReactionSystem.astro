@@ -47,23 +47,24 @@
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(2, 1fr); /* Two rows for better mobile layout */
-    gap: 6px;
+    gap: 4px; /* Smaller gap */
     background: rgba(0, 0, 0, 0.9);
-    padding: 8px 12px;
-    border-radius: 16px;
+    padding: 6px 8px; /* Smaller padding */
+    border-radius: 12px; /* Smaller border radius */
     backdrop-filter: blur(10px);
     z-index: 1001;
-    max-width: calc(100vw - 40px); /* Better mobile margins */
+    width: 320px; /* Smaller width to fit under screen */
+    max-width: calc(100vw - 60px); /* More conservative margins */
     box-sizing: border-box;
     border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border for definition */
   }
 
   .reaction-btn, .money-btn, .nuclear-btn {
-    width: 44px; /* Larger touch targets for mobile */
-    height: 44px;
+    width: 36px; /* Smaller touch targets */
+    height: 36px;
     border: none;
-    border-radius: 12px;
-    font-size: 14px;
+    border-radius: 10px; /* Smaller radius */
+    font-size: 12px; /* Smaller font */
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
@@ -72,13 +73,13 @@
     margin: 0;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
-    min-height: 44px; /* iOS accessibility requirement */
+    min-height: 36px; /* Smaller minimum */
   }
   
   .text-btn {
-    font-size: 11px; /* Better mobile sizing */
+    font-size: 9px; /* Smaller mobile sizing */
     font-weight: bold;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px; /* Tighter spacing */
   }
 
   .reaction-btn {
@@ -89,7 +90,7 @@
     background: linear-gradient(135deg, #ffd700, #ff8c00);
     color: #000;
     font-weight: bold;
-    font-size: 12px; /* Slightly smaller for money buttons */
+    font-size: 10px; /* Smaller for compact layout */
   }
 
   .nuclear-btn {
@@ -106,12 +107,6 @@
   
   .reaction-btn:active, .money-btn:active, .nuclear-btn:active {
     transform: translateY(0) scale(0.98);
-  }
-    transform: scale(1.1);
-  }
-
-  .reaction-btn:active, .money-btn:active, .nuclear-btn:active {
-    transform: scale(0.9);
   }
 </style>
 

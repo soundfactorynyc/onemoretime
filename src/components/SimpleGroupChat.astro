@@ -15,21 +15,22 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px; /* Better spacing for touch */
+    gap: 6px; /* Smaller spacing */
     z-index: 1002; /* Higher than reactions */
-    padding: 0 16px;
-    max-width: calc(100vw - 32px); /* Better mobile margins */
+    padding: 0 8px; /* Smaller padding */
+    width: 320px; /* Match reaction controls width */
+    max-width: calc(100vw - 60px); /* Conservative margins */
 }
 
 #groupChatInput {
     flex: 1; /* Take up available space */
-    min-width: 160px;
+    min-width: 120px; /* Smaller minimum */
     background: #000000;
     border: 1px solid #ffffff;
-    border-radius: 24px;
-    padding: 12px 16px;
+    border-radius: 20px; /* Smaller radius */
+    padding: 8px 12px; /* Smaller padding */
     color: #ffffff;
-    font-size: 14px;
+    font-size: 12px; /* Smaller font */
     outline: none;
     transition: border-color 0.2s;
 }
@@ -46,13 +47,13 @@
     background: #ffffff;
     color: #000000;
     border: none;
-    border-radius: 20px;
-    padding: 12px 16px;
-    font-size: 12px;
+    border-radius: 18px; /* Smaller radius */
+    padding: 8px 12px; /* Smaller padding */
+    font-size: 11px; /* Smaller font */
     font-weight: 600;
     cursor: pointer;
     touch-action: manipulation;
-    min-height: 44px; /* iOS accessibility requirement */
+    min-height: 36px; /* Smaller minimum height */
     white-space: nowrap;
 }
 
@@ -70,9 +71,9 @@
     color: #ffffff;
     border: 1px solid #ffffff;
     border-radius: 50%;
-    width: 44px; /* Better touch target */
-    height: 44px;
-    font-size: 14px;
+    width: 36px; /* Smaller touch target */
+    height: 36px;
+    font-size: 12px; /* Smaller font */
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -100,7 +101,43 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function sendMessage() {
         if (input && input.value.trim()) {
-            console.log('Group message:', input.value);
+            const message = input.value.trim();
+            console.log('Group message:', message);
+            
+            // Extract emojis from the message and send them to the video screen
+            const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+            const emojis = message.match(emojiRegex);
+            
+            if (emojis) {
+                // Send each emoji to the reaction engine
+                emojis.forEach(emoji => {
+                    document.dispatchEvent(new CustomEvent('tiktok-reaction', {
+                        detail: {
+                            type: 'emoji',
+                            emoji: emoji,
+                            tier: 'free',
+                            value: 0
+                        }
+                    }));
+                });
+            }
+            
+            // Also check for money expressions like $1, $5, etc.
+            const moneyRegex = /\$(\d+)/g;
+            const moneyMatches = message.matchAll(moneyRegex);
+            
+            for (const match of moneyMatches) {
+                const amount = parseInt(match[1]);
+                document.dispatchEvent(new CustomEvent('tiktok-reaction', {
+                    detail: {
+                        type: 'money',
+                        emoji: `$${amount}`,
+                        tier: 'money',
+                        value: amount
+                    }
+                }));
+            }
+            
             input.value = '';
         }
     }
