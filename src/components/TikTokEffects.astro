@@ -1,0 +1,587 @@
+---
+// Next Level TikTok Player - Advanced Red Player
+---
+
+<div id="tiktokPlayer" class="tiktok-player-container">
+  <!-- Main Video Container -->
+  <div class="video-container" id="videoContainer">
+    <!-- Video Player Display -->
+    <div class="video-display">
+      <div class="video-placeholder">VIDEO</div>
+    </div>
+  
+  <!-- Madness Meter -->
+  <div class="madness-meter-container" id="madnessMeter">
+    <div class="madness-label">MADNESS METER</div>
+    <div class="madness-bar">
+      <div class="madness-fill" id="madnessFill"></div>
+      <div class="madness-sparks" id="madnessSparks"></div>
+    </div>
+    <div class="madness-percentage" id="madnessPercentage">0%</div>
+  </div>
+
+  <!-- Combo Chain Display -->
+  <div class="combo-display" id="comboDisplay">
+    <div class="combo-text">COMBO</div>
+    <div class="combo-count" id="comboCount">0</div>
+    <div class="combo-multiplier" id="comboMultiplier">x1</div>
+  </div>
+
+  <!-- Reaction Storm Indicator -->
+  <div class="storm-indicator" id="stormIndicator">
+    <div class="storm-icon">🌪️</div>
+    <div class="storm-text">REACTION STORM!</div>
+    <div class="storm-timer" id="stormTimer">60s</div>
+  </div>
+</div>
+
+<style>
+  .tiktok-effects-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Effect Canvases */
+  .effect-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  #reactionCanvas { z-index: 1001; }
+  #hologramCanvas { z-index: 1003; }
+  #particleCanvas { z-index: 1000; }
+  #madnessCanvas { z-index: 1004; }
+
+  /* Madness Meter */
+  .madness-meter-container {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #ff006e;
+    border-radius: 15px;
+    padding: 10px;
+    backdrop-filter: blur(10px);
+    z-index: 1005;
+    min-width: 120px;
+    pointer-events: auto;
+  }
+
+  .madness-label {
+    color: #ff006e;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 5px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .madness-bar {
+    width: 100px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .madness-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff006e, #8338ec);
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .madness-sparks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #fff 1px, transparent 2px);
+    background-size: 4px 4px;
+    opacity: 0;
+    animation: sparkle 1s infinite;
+  }
+
+  @keyframes sparkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.8; }
+  }
+
+  .madness-percentage {
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+    margin-top: 5px;
+    font-weight: bold;
+  }
+
+  /* Combo Display */
+  .combo-display {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    padding: 10px;
+    backdrop-filter: blur(10px);
+    z-index: 1005;
+    text-align: center;
+    min-width: 80px;
+    pointer-events: auto;
+  }
+
+  .combo-text {
+    color: #ffd700;
+    font-size: 10px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .combo-count {
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .combo-multiplier {
+    color: #00ff00;
+    font-size: 10px;
+    font-weight: bold;
+    margin-top: 2px;
+  }
+
+  /* Storm Indicator */
+  .storm-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 0, 0.9);
+    border: 3px solid #fff;
+    border-radius: 20px;
+    padding: 15px 25px;
+    backdrop-filter: blur(15px);
+    z-index: 1006;
+    text-align: center;
+    display: none;
+    animation: stormPulse 1s infinite;
+    pointer-events: auto;
+  }
+
+  .storm-indicator.active {
+    display: block;
+  }
+
+  @keyframes stormPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.05); }
+  }
+
+  .storm-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+
+  .storm-text {
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .storm-timer {
+    color: #ffff00;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  /* Screen effects */
+  @keyframes screenShake {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(2px, -2px); }
+    50% { transform: translate(-2px, 2px); }
+    75% { transform: translate(-2px, 2px); }
+  }
+
+  .screen-shake {
+    animation: screenShake 0.5s ease-in-out;
+  }
+
+  .screen-flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    animation: screenFlash 0.3s ease-out;
+  }
+
+  @keyframes screenFlash {
+    0% { opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0; }
+  }
+</style>
+
+<script>
+  // TikTok Effects Engine
+  class TikTokEffectsEngine {
+    constructor() {
+      this.madnessLevel = 0;
+      this.comboCount = 0;
+      this.stormActive = false;
+      this.stormTimer = 60;
+      this.particles = [];
+      this.reactions = [];
+      this.holograms = [];
+      
+      this.init();
+    }
+
+    init() {
+      this.initializeCanvases();
+      this.setupEventListeners();
+      this.startAnimations();
+      
+      console.log('🚀 TikTok Effects Engine Activated!');
+    }
+
+    initializeCanvases() {
+      this.reactionCanvas = document.getElementById('reactionCanvas');
+      this.hologramCanvas = document.getElementById('hologramCanvas');
+      this.particleCanvas = document.getElementById('particleCanvas');
+      this.madnessCanvas = document.getElementById('madnessCanvas');
+
+      if (this.reactionCanvas) {
+        this.reactionCtx = this.reactionCanvas.getContext('2d');
+        this.resizeCanvas(this.reactionCanvas);
+      }
+      
+      if (this.hologramCanvas) {
+        this.hologramCtx = this.hologramCanvas.getContext('2d');
+        this.resizeCanvas(this.hologramCanvas);
+      }
+      
+      if (this.particleCanvas) {
+        this.particleCtx = this.particleCanvas.getContext('2d');
+        this.resizeCanvas(this.particleCanvas);
+      }
+      
+      if (this.madnessCanvas) {
+        this.madnessCtx = this.madnessCanvas.getContext('2d');
+        this.resizeCanvas(this.madnessCanvas);
+      }
+    }
+
+    resizeCanvas(canvas) {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    setupEventListeners() {
+      // Listen for custom events from reaction system
+      document.addEventListener('tiktok-reaction', (e) => {
+        this.handleReaction(e.detail);
+      });
+
+      window.addEventListener('resize', () => {
+        this.initializeCanvases();
+      });
+    }
+
+    handleReaction(reactionData) {
+      const { type, value, emoji, text } = reactionData;
+      
+      // Increase madness level
+      this.increaseMadness(value || 1);
+      
+      // Create visual effects based on type
+      switch (type) {
+        case 'money':
+          this.createMoneyEffect(value);
+          break;
+        case 'emoji':
+          this.createEmojiEffect(emoji);
+          break;
+        case 'text':
+          this.createTextEffect(text);
+          break;
+        case 'chaos':
+          this.createChaosEffect();
+          break;
+      }
+      
+      // Update combo
+      this.updateCombo();
+    }
+
+    increaseMadness(amount) {
+      this.madnessLevel = Math.min(100, this.madnessLevel + amount);
+      
+      const fill = document.getElementById('madnessFill');
+      const percentage = document.getElementById('madnessPercentage');
+      
+      if (fill) fill.style.width = `${this.madnessLevel}%`;
+      if (percentage) percentage.textContent = `${Math.round(this.madnessLevel)}%`;
+      
+      // Trigger storm at 80% madness
+      if (this.madnessLevel >= 80 && !this.stormActive) {
+        this.triggerReactionStorm();
+      }
+    }
+
+    updateCombo() {
+      this.comboCount++;
+      const comboCountEl = document.getElementById('comboCount');
+      const comboMultiplierEl = document.getElementById('comboMultiplier');
+      
+      if (comboCountEl) comboCountEl.textContent = this.comboCount;
+      if (comboMultiplierEl) {
+        const multiplier = Math.floor(this.comboCount / 5) + 1;
+        comboMultiplierEl.textContent = `x${multiplier}`;
+      }
+      
+      // Reset combo after 3 seconds of inactivity
+      clearTimeout(this.comboTimeout);
+      this.comboTimeout = setTimeout(() => {
+        this.comboCount = 0;
+        if (comboCountEl) comboCountEl.textContent = '0';
+        if (comboMultiplierEl) comboMultiplierEl.textContent = 'x1';
+      }, 3000);
+    }
+
+    createMoneyEffect(value) {
+      // Screen shake for big tips
+      if (value >= 20) {
+        document.body.classList.add('screen-shake');
+        setTimeout(() => {
+          document.body.classList.remove('screen-shake');
+        }, 500);
+      }
+      
+      // Screen flash for huge tips
+      if (value >= 50) {
+        const flash = document.createElement('div');
+        flash.className = 'screen-flash';
+        document.body.appendChild(flash);
+        setTimeout(() => {
+          document.body.removeChild(flash);
+        }, 300);
+      }
+      
+      // Create money particle effects
+      this.createMoneyParticles(value);
+    }
+
+    createEmojiEffect(emoji) {
+      // Create floating emoji
+      this.createFloatingEmoji(emoji);
+    }
+
+    createTextEffect(text) {
+      // Create text explosion
+      this.createTextExplosion(text);
+    }
+
+    createChaosEffect() {
+      // Random chaos effects
+      const effects = ['shake', 'flash', 'particles', 'storm'];
+      const randomEffect = effects[Math.floor(Math.random() * effects.length)];
+      
+      switch (randomEffect) {
+        case 'shake':
+          document.body.classList.add('screen-shake');
+          setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+          break;
+        case 'flash':
+          const flash = document.createElement('div');
+          flash.className = 'screen-flash';
+          document.body.appendChild(flash);
+          setTimeout(() => document.body.removeChild(flash), 300);
+          break;
+        case 'particles':
+          this.createChaosParticles();
+          break;
+        case 'storm':
+          this.triggerReactionStorm();
+          break;
+      }
+    }
+
+    triggerReactionStorm() {
+      this.stormActive = true;
+      const stormIndicator = document.getElementById('stormIndicator');
+      const stormTimer = document.getElementById('stormTimer');
+      
+      if (stormIndicator) stormIndicator.classList.add('active');
+      
+      // Storm countdown
+      this.stormTimer = 60;
+      const stormInterval = setInterval(() => {
+        this.stormTimer--;
+        if (stormTimer) stormTimer.textContent = `${this.stormTimer}s`;
+        
+        if (this.stormTimer <= 0) {
+          clearInterval(stormInterval);
+          this.stormActive = false;
+          if (stormIndicator) stormIndicator.classList.remove('active');
+          this.madnessLevel = Math.max(0, this.madnessLevel - 30);
+        }
+      }, 1000);
+    }
+
+    createMoneyParticles(value) {
+      const count = Math.min(value * 2, 50);
+      for (let i = 0; i < count; i++) {
+        this.particles.push({
+          x: Math.random() * window.innerWidth,
+          y: window.innerHeight,
+          vx: (Math.random() - 0.5) * 4,
+          vy: -Math.random() * 8 - 2,
+          life: 1,
+          decay: 0.02,
+          size: Math.random() * 20 + 10,
+          color: '#ffd700',
+          text: '$'
+        });
+      }
+    }
+
+    createFloatingEmoji(emoji) {
+      this.reactions.push({
+        x: Math.random() * window.innerWidth,
+        y: window.innerHeight,
+        vy: -Math.random() * 3 - 1,
+        life: 1,
+        decay: 0.01,
+        size: Math.random() * 30 + 20,
+        content: emoji,
+        rotation: 0,
+        rotationSpeed: (Math.random() - 0.5) * 0.1
+      });
+    }
+
+    createTextExplosion(text) {
+      for (let i = 0; i < 5; i++) {
+        this.reactions.push({
+          x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
+          y: window.innerHeight / 2 + (Math.random() - 0.5) * 200,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          life: 1,
+          decay: 0.015,
+          size: Math.random() * 20 + 15,
+          content: text,
+          color: '#ff006e'
+        });
+      }
+    }
+
+    createChaosParticles() {
+      for (let i = 0; i < 100; i++) {
+        this.particles.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          vx: (Math.random() - 0.5) * 10,
+          vy: (Math.random() - 0.5) * 10,
+          life: 1,
+          decay: 0.03,
+          size: Math.random() * 10 + 5,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+          text: ['🌟', '✨', '💫', '⭐'][Math.floor(Math.random() * 4)]
+        });
+      }
+    }
+
+    startAnimations() {
+      const animate = () => {
+        this.updateParticles();
+        this.updateReactions();
+        this.renderEffects();
+        requestAnimationFrame(animate);
+      };
+      animate();
+    }
+
+    updateParticles() {
+      this.particles = this.particles.filter(particle => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.vy += 0.1; // gravity
+        particle.life -= particle.decay;
+        return particle.life > 0;
+      });
+    }
+
+    updateReactions() {
+      this.reactions = this.reactions.filter(reaction => {
+        if (reaction.vx !== undefined) reaction.x += reaction.vx;
+        if (reaction.vy !== undefined) reaction.y += reaction.vy;
+        if (reaction.rotationSpeed !== undefined) reaction.rotation += reaction.rotationSpeed;
+        reaction.life -= reaction.decay;
+        return reaction.life > 0;
+      });
+    }
+
+    renderEffects() {
+      // Clear all canvases
+      if (this.particleCtx) {
+        this.particleCtx.clearRect(0, 0, this.particleCanvas.width, this.particleCanvas.height);
+        
+        // Render particles
+        this.particles.forEach(particle => {
+          this.particleCtx.save();
+          this.particleCtx.globalAlpha = particle.life;
+          this.particleCtx.fillStyle = particle.color;
+          this.particleCtx.font = `${particle.size}px Arial`;
+          this.particleCtx.textAlign = 'center';
+          this.particleCtx.fillText(particle.text, particle.x, particle.y);
+          this.particleCtx.restore();
+        });
+      }
+
+      if (this.reactionCtx) {
+        this.reactionCtx.clearRect(0, 0, this.reactionCanvas.width, this.reactionCanvas.height);
+        
+        // Render reactions
+        this.reactions.forEach(reaction => {
+          this.reactionCtx.save();
+          this.reactionCtx.globalAlpha = reaction.life;
+          this.reactionCtx.translate(reaction.x, reaction.y);
+          if (reaction.rotation) this.reactionCtx.rotate(reaction.rotation);
+          this.reactionCtx.font = `bold ${reaction.size}px Arial`;
+          this.reactionCtx.textAlign = 'center';
+          this.reactionCtx.textBaseline = 'middle';
+          
+          if (reaction.color) {
+            this.reactionCtx.fillStyle = reaction.color;
+            this.reactionCtx.shadowColor = reaction.color;
+            this.reactionCtx.shadowBlur = 20;
+          }
+          
+          this.reactionCtx.fillText(reaction.content, 0, 0);
+          this.reactionCtx.restore();
+        });
+      }
+    }
+  }
+
+  // Initialize TikTok Effects Engine when page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    window.tiktokEffects = new TikTokEffectsEngine();
+  });
+</script>

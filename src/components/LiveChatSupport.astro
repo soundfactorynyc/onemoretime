@@ -76,17 +76,18 @@
 <style>
 .chat-widget {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 180px; /* Positioned under middle area */
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 10000;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .chat-toggle {
-    width: 60px;
-    height: 60px;
+    width: 52px; /* Slightly smaller for mobile */
+    height: 52px;
     background: #000000;
-    border: none;
+    border: 2px solid #ffffff;
     border-radius: 50%;
     color: white;
     cursor: pointer;
@@ -96,6 +97,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    touch-action: manipulation;
 }
 
 .chat-toggle:hover {
@@ -132,22 +134,28 @@
 }
 
 .chat-window {
-    position: absolute;
-    bottom: 80px;
+    position: fixed;
+    bottom: 0;
     right: 0;
-    width: 350px;
-    height: 500px;
+    width: 100vw;
+    height: 100vh;
     background: #1a1a1a;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid #333;
+    border: none;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
 }
 
 .chat-window.hidden {
-    display: none;
+    transform: translateX(100%);
+}
+
+.chat-window:not(.hidden) {
+    transform: translateX(0);
 }
 
 .chat-header {

@@ -1,0 +1,901 @@
+---
+// Next Level Red TikTok Player - Advanced UI
+---
+
+<div class="next-level-tiktok-player">
+  <!-- Main Video Container -->
+  <div class="video-container" id="videoContainer">
+    <!-- Video Player Display -->
+    <div class="video-display">
+      <div class="video-placeholder">VIDEO</div>
+    </div>
+
+    <!-- Smart Overlay UI -->
+    <div class="overlay-ui">
+      <!-- Top Bar - Minimal & Smart -->
+      <div class="top-bar">
+        <div class="top-controls">
+          <div class="mode-indicators">
+            <div class="ai-mode hidden" id="aiMode">
+              <span class="brain-icon">🧠</span>
+              <span>AI Mode</span>
+            </div>
+            <div class="speed-indicator hidden" id="speedIndicator">
+              <span id="speedText">1x</span>
+            </div>
+          </div>
+          <button class="music-btn">
+            <span>🎵</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Gesture Feedback -->
+      <div class="gesture-feedback" id="gestureFeedback">
+        <div class="heart-animation hidden" id="heartAnimation">❤️</div>
+        <div class="rewind-animation hidden" id="rewindAnimation">-10s</div>
+        <div class="forward-animation hidden" id="forwardAnimation">+10s</div>
+      </div>
+
+      <!-- Bottom Info - Floating Design -->
+      <div class="bottom-info">
+        <h3 class="username" id="username">@mindblowing</h3>
+        <p class="description" id="description">Next-level content creation 🚀</p>
+        <div class="music-info">
+          <span class="music-icon">🎵</span>
+          <p class="music-text" id="musicText">Future Beats - Cosmic</p>
+        </div>
+      </div>
+
+      <!-- Right Side Actions - Redesigned -->
+      <div class="right-actions">
+        <!-- Profile - Floating Avatar -->
+        <div class="profile-avatar">
+          <div class="avatar-circle">
+            <span>M</span>
+          </div>
+          <div class="follow-btn">+</div>
+        </div>
+
+        <!-- Smart Action Buttons -->
+        <div class="action-buttons">
+          <!-- Like Button -->
+          <button class="action-btn like-btn" id="likeBtn">
+            <div class="btn-circle">
+              <span class="heart-icon">🤍</span>
+            </div>
+            <span class="btn-count" id="likeCount">2.3M</span>
+          </button>
+
+          <!-- Comment Button -->
+          <button class="action-btn comment-btn">
+            <div class="btn-circle">
+              <span>💬</span>
+            </div>
+            <span class="btn-count">45K</span>
+          </button>
+
+          <!-- Share Button -->
+          <button class="action-btn share-btn">
+            <div class="btn-circle">
+              <span>📤</span>
+            </div>
+            <span class="btn-count">12K</span>
+          </button>
+
+          <!-- Advanced Features Toggle -->
+          <button class="action-btn advanced-btn" id="advancedBtn">
+            <div class="btn-circle advanced-circle">
+              <span>✨</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Advanced Features Panel -->
+      <div class="advanced-panel hidden" id="advancedPanel">
+        <div class="panel-content">
+          <div class="panel-header">
+            <h3>Advanced Controls</h3>
+            <button class="close-btn" id="closeAdvanced">⌄</button>
+          </div>
+
+          <!-- Feature Grid -->
+          <div class="features-grid">
+            <!-- AI Analysis -->
+            <button class="feature-btn" id="aiToggle">
+              <span class="feature-icon">🧠</span>
+              <span class="feature-label">AI Mode</span>
+            </button>
+
+            <!-- Speed Control -->
+            <button class="feature-btn" id="speedToggle">
+              <span class="feature-icon">⚡</span>
+              <span class="feature-label" id="speedLabel">1x</span>
+            </button>
+
+            <!-- View Mode -->
+            <button class="feature-btn" id="viewMode">
+              <span class="feature-icon">📱</span>
+              <span class="feature-label">Split</span>
+            </button>
+
+            <!-- Heatmap -->
+            <button class="feature-btn" id="heatmapToggle">
+              <span class="feature-icon">🔥</span>
+              <span class="feature-label">Heatmap</span>
+            </button>
+
+            <!-- Trending -->
+            <button class="feature-btn">
+              <span class="feature-icon">📈</span>
+              <span class="feature-label">Trends</span>
+            </button>
+
+            <!-- Auto Scroll -->
+            <button class="feature-btn active" id="autoScroll">
+              <span class="feature-icon">⬆️</span>
+              <span class="feature-label">Auto</span>
+            </button>
+
+            <!-- Focus Mode -->
+            <button class="feature-btn">
+              <span class="feature-icon">👁️</span>
+              <span class="feature-label">Focus</span>
+            </button>
+
+            <!-- Smart Mix -->
+            <button class="feature-btn">
+              <span class="feature-icon">⚡</span>
+              <span class="feature-label">Mix</span>
+            </button>
+          </div>
+
+          <!-- Gesture Hint -->
+          <div class="gesture-hint">
+            Double tap sides to skip • Center to like • Swipe for more
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <!-- Volume Control -->
+      <button class="volume-btn" id="volumeBtn">
+        <span id="volumeIcon">🔊</span>
+      </button>
+    </div>
+
+    <!-- Heatmap Overlay -->
+    <div class="heatmap-overlay hidden" id="heatmapOverlay">
+      <div class="heat-spot heat-1"></div>
+      <div class="heat-spot heat-2"></div>
+      <div class="heat-spot heat-3"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .next-level-tiktok-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 140px); /* Leave space for group chat and reactions */
+    background: black;
+    overflow: hidden;
+    z-index: 500; /* Lower z-index so it doesn't cover homebase */
+  }
+
+  .video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #4c1d95, #be185d);
+    transition: all 0.7s ease;
+  }
+
+  .video-display {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .video-placeholder {
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 4rem;
+    font-weight: bold;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .overlay-ui {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .overlay-ui > * {
+    pointer-events: auto;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+  }
+
+  .top-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mode-indicators {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .ai-mode, .speed-indicator {
+    background: rgba(139, 92, 246, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    padding: 0.25rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: white;
+  }
+
+  .speed-indicator {
+    background: rgba(59, 130, 246, 0.2);
+  }
+
+  .music-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+
+  /* Gesture Feedback */
+  .gesture-feedback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .heart-animation {
+    font-size: 8rem;
+    color: #ef4444;
+    animation: heartPulse 1s ease-out;
+  }
+
+  .rewind-animation, .forward-animation {
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    animation: fadeInOut 0.5s ease-out;
+  }
+
+  @keyframes heartPulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  /* Bottom Info - Initially Invisible */
+  .bottom-info {
+    position: absolute;
+    bottom: 5rem;
+    left: 1rem;
+    right: 4rem;
+    color: white;
+    opacity: 0; /* Start invisible */
+    transition: opacity 0.3s ease;
+  }
+
+  .bottom-info:hover,
+  .bottom-info:active,
+  .bottom-info.touched {
+    opacity: 1; /* Show on touch/hover */
+  }
+
+  .username {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .description {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+  }
+
+  .music-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Right Actions */
+  .right-actions {
+    position: absolute;
+    right: 1rem;
+    bottom: 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .profile-avatar {
+    position: relative;
+  }
+
+  .avatar-circle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+  }
+
+  .follow-btn {
+    position: absolute;
+    bottom: -0.5rem;
+    right: -0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: #ef4444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .action-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    transition: transform 0.2s ease;
+  }
+
+  .action-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .btn-circle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: transparent; /* Transparent background */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle outline */
+    backdrop-filter: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-circle:hover,
+  .btn-circle:active {
+    background: rgba(255, 255, 255, 0.1); /* Show background on touch */
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .advanced-circle {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  }
+
+  .btn-count {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Like Button States */
+  .like-btn.liked .btn-circle {
+    background: #ef4444;
+  }
+
+  .like-btn.liked .heart-icon {
+    color: white;
+  }
+
+  /* Advanced Panel */
+  .advanced-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    transition: transform 0.5s ease;
+    transform: translateY(100%);
+  }
+
+  .advanced-panel:not(.hidden) {
+    transform: translateY(0);
+  }
+
+  .panel-content {
+    padding: 1rem;
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: white;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+  }
+
+  .feature-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .feature-btn.active {
+    background: #8b5cf6;
+  }
+
+  .feature-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .feature-label {
+    font-size: 0.75rem;
+  }
+
+  .gesture-hint {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 33%;
+    background: white;
+    transition: width 0.1s ease;
+  }
+
+  /* Volume Control */
+  .volume-btn {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Heatmap Overlay */
+  .heatmap-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .heat-spot {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(3rem);
+  }
+
+  .heat-1 {
+    top: 33%;
+    left: 33%;
+    width: 8rem;
+    height: 8rem;
+    background: rgba(239, 68, 68, 0.3);
+  }
+
+  .heat-2 {
+    bottom: 33%;
+    right: 25%;
+    width: 6rem;
+    height: 6rem;
+    background: rgba(249, 115, 22, 0.3);
+  }
+
+  .heat-3 {
+    top: 50%;
+    left: 50%;
+    width: 5rem;
+    height: 5rem;
+    background: rgba(234, 179, 8, 0.3);
+  }
+
+  /* Utility Classes */
+  .hidden {
+    display: none !important;
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .video-placeholder {
+      font-size: 3rem;
+    }
+    
+    .features-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
+
+<script>
+  // Next Level TikTok Player Controller
+  class NextLevelTikTokPlayer {
+    constructor() {
+      this.currentVideo = 0;
+      this.isPlaying = true;
+      this.isMuted = false;
+      this.liked = false;
+      this.showAdvanced = false;
+      this.aiMode = false;
+      this.playbackSpeed = 1;
+      this.autoScroll = true;
+      this.heatmapVisible = false;
+      this.startY = 0;
+
+      this.videos = [
+        {
+          id: 1,
+          user: '@mindblowing',
+          description: 'Next-level content creation 🚀',
+          music: 'Future Beats - Cosmic',
+          likes: '2.3M',
+          comments: '45K',
+          shares: '12K',
+          bgColor: 'linear-gradient(135deg, #4c1d95, #be185d)'
+        },
+        {
+          id: 2,
+          user: '@techmaster',
+          description: 'AI-powered effects in action ✨',
+          music: 'Digital Dreams - Synth',
+          likes: '5.1M',
+          comments: '89K',
+          shares: '34K',
+          bgColor: 'linear-gradient(135deg, #1e3a8a, #4c1d95)'
+        },
+        {
+          id: 3,
+          user: '@creative',
+          description: 'Revolutionary content ideas 💡',
+          music: 'Innovation - Electronic',
+          likes: '3.7M',
+          comments: '67K',
+          shares: '23K',
+          bgColor: 'linear-gradient(135deg, #065f46, #1e3a8a)'
+        }
+      ];
+
+      this.init();
+    }
+
+    init() {
+      this.setupEventListeners();
+      this.updateVideoInfo();
+      console.log('🚀 Next Level TikTok Player Activated!');
+    }
+
+    setupEventListeners() {
+      const container = document.getElementById('videoContainer');
+      const likeBtn = document.getElementById('likeBtn');
+      const advancedBtn = document.getElementById('advancedBtn');
+      const closeAdvanced = document.getElementById('closeAdvanced');
+      const volumeBtn = document.getElementById('volumeBtn');
+
+      // Touch/Mouse Events
+      if (container) {
+        container.addEventListener('touchstart', (e) => this.handleTouchStart(e));
+        container.addEventListener('touchmove', (e) => this.handleTouchMove(e));
+        container.addEventListener('dblclick', (e) => this.handleDoubleTap(e));
+      }
+
+      // Button Events
+      if (likeBtn) {
+        likeBtn.addEventListener('click', () => this.toggleLike());
+      }
+
+      if (advancedBtn) {
+        advancedBtn.addEventListener('click', () => this.toggleAdvanced());
+      }
+
+      if (closeAdvanced) {
+        closeAdvanced.addEventListener('click', () => this.closeAdvanced());
+      }
+
+      if (volumeBtn) {
+        volumeBtn.addEventListener('click', () => this.toggleMute());
+      }
+
+      // Feature Buttons
+      document.getElementById('aiToggle')?.addEventListener('click', () => this.toggleAI());
+      document.getElementById('speedToggle')?.addEventListener('click', () => this.toggleSpeed());
+      document.getElementById('heatmapToggle')?.addEventListener('click', () => this.toggleHeatmap());
+      document.getElementById('autoScroll')?.addEventListener('click', () => this.toggleAutoScroll());
+    }
+
+    handleTouchStart(e) {
+      this.startY = e.touches[0].clientY;
+    }
+
+    handleTouchMove(e) {
+      const deltaY = e.touches[0].clientY - this.startY;
+      if (Math.abs(deltaY) > 50) {
+        if (deltaY > 0 && this.currentVideo > 0) {
+          this.switchVideo(this.currentVideo - 1);
+        } else if (deltaY < 0 && this.currentVideo < this.videos.length - 1) {
+          this.switchVideo(this.currentVideo + 1);
+        }
+        this.startY = e.touches[0].clientY;
+      }
+    }
+
+    handleDoubleTap(e) {
+      const rect = e.target.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const width = rect.width;
+
+      if (x < width * 0.3) {
+        this.showGesture('rewind');
+      } else if (x > width * 0.7) {
+        this.showGesture('forward');
+      } else {
+        this.toggleLike();
+        this.showGesture('heart');
+      }
+    }
+
+    showGesture(type) {
+      const feedback = document.getElementById('gestureFeedback');
+      const animations = {
+        heart: document.getElementById('heartAnimation'),
+        rewind: document.getElementById('rewindAnimation'),
+        forward: document.getElementById('forwardAnimation')
+      };
+
+      // Hide all animations
+      Object.values(animations).forEach(el => {
+        if (el) el.classList.add('hidden');
+      });
+
+      // Show specific animation
+      if (animations[type]) {
+        animations[type].classList.remove('hidden');
+        setTimeout(() => {
+          animations[type].classList.add('hidden');
+        }, type === 'heart' ? 1000 : 500);
+      }
+    }
+
+    toggleLike() {
+      this.liked = !this.liked;
+      const likeBtn = document.getElementById('likeBtn');
+      const heartIcon = likeBtn?.querySelector('.heart-icon');
+      
+      if (likeBtn) {
+        likeBtn.classList.toggle('liked', this.liked);
+      }
+      
+      if (heartIcon) {
+        heartIcon.textContent = this.liked ? '❤️' : '🤍';
+      }
+    }
+
+    toggleAdvanced() {
+      this.showAdvanced = !this.showAdvanced;
+      const panel = document.getElementById('advancedPanel');
+      if (panel) {
+        panel.classList.toggle('hidden', !this.showAdvanced);
+      }
+    }
+
+    closeAdvanced() {
+      this.showAdvanced = false;
+      const panel = document.getElementById('advancedPanel');
+      if (panel) {
+        panel.classList.add('hidden');
+      }
+    }
+
+    toggleMute() {
+      this.isMuted = !this.isMuted;
+      const volumeIcon = document.getElementById('volumeIcon');
+      if (volumeIcon) {
+        volumeIcon.textContent = this.isMuted ? '🔇' : '🔊';
+      }
+    }
+
+    toggleAI() {
+      this.aiMode = !this.aiMode;
+      const aiModeEl = document.getElementById('aiMode');
+      const aiToggle = document.getElementById('aiToggle');
+      
+      if (aiModeEl) {
+        aiModeEl.classList.toggle('hidden', !this.aiMode);
+      }
+      
+      if (aiToggle) {
+        aiToggle.classList.toggle('active', this.aiMode);
+      }
+    }
+
+    toggleSpeed() {
+      const speeds = [1, 1.5, 2, 0.5];
+      const currentIndex = speeds.indexOf(this.playbackSpeed);
+      this.playbackSpeed = speeds[(currentIndex + 1) % speeds.length];
+      
+      const speedText = document.getElementById('speedText');
+      const speedLabel = document.getElementById('speedLabel');
+      const speedIndicator = document.getElementById('speedIndicator');
+      
+      if (speedText) speedText.textContent = `${this.playbackSpeed}x`;
+      if (speedLabel) speedLabel.textContent = `${this.playbackSpeed}x`;
+      if (speedIndicator) {
+        speedIndicator.classList.toggle('hidden', this.playbackSpeed === 1);
+      }
+    }
+
+    toggleHeatmap() {
+      this.heatmapVisible = !this.heatmapVisible;
+      const heatmapOverlay = document.getElementById('heatmapOverlay');
+      const heatmapToggle = document.getElementById('heatmapToggle');
+      
+      if (heatmapOverlay) {
+        heatmapOverlay.classList.toggle('hidden', !this.heatmapVisible);
+      }
+      
+      if (heatmapToggle) {
+        heatmapToggle.classList.toggle('active', this.heatmapVisible);
+      }
+    }
+
+    toggleAutoScroll() {
+      this.autoScroll = !this.autoScroll;
+      const autoScrollBtn = document.getElementById('autoScroll');
+      if (autoScrollBtn) {
+        autoScrollBtn.classList.toggle('active', this.autoScroll);
+      }
+    }
+
+    switchVideo(index) {
+      this.currentVideo = index;
+      this.updateVideoInfo();
+      this.updateBackground();
+    }
+
+    updateVideoInfo() {
+      const current = this.videos[this.currentVideo];
+      if (!current) return;
+
+      const username = document.getElementById('username');
+      const description = document.getElementById('description');
+      const musicText = document.getElementById('musicText');
+      const likeCount = document.getElementById('likeCount');
+
+      if (username) username.textContent = current.user;
+      if (description) description.textContent = current.description;
+      if (musicText) musicText.textContent = current.music;
+      if (likeCount) likeCount.textContent = current.likes;
+    }
+
+    updateBackground() {
+      const current = this.videos[this.currentVideo];
+      const container = document.getElementById('videoContainer');
+      if (container && current) {
+        container.style.background = current.bgColor;
+      }
+    }
+
+    updateProgress() {
+      const progressFill = document.getElementById('progressFill');
+      if (progressFill) {
+        // Simulate progress (in real app, this would be actual video progress)
+        const progress = Math.random() * 100;
+        progressFill.style.width = `${progress}%`;
+      }
+    }
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    window.tiktokPlayer = new NextLevelTikTokPlayer();
+    
+    // Update progress periodically
+    setInterval(() => {
+      if (window.tiktokPlayer) {
+        window.tiktokPlayer.updateProgress();
+      }
+    }, 1000);
+  });
+</script>

@@ -11,27 +11,35 @@
 <style>
 .one-line-group-chat {
     position: fixed;
-    bottom: 10px;
+    bottom: 16px; /* Higher from bottom for safe area */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
-    z-index: 1000;
+    gap: 8px; /* Better spacing for touch */
+    z-index: 1002; /* Higher than reactions */
+    padding: 0 16px;
+    max-width: calc(100vw - 32px); /* Better mobile margins */
 }
 
 #groupChatInput {
-    width: 300px;
+    flex: 1; /* Take up available space */
+    min-width: 160px;
     background: #000000;
     border: 1px solid #ffffff;
-    border-radius: 20px;
-    padding: 10px 16px;
+    border-radius: 24px;
+    padding: 12px 16px;
     color: #ffffff;
     font-size: 14px;
     outline: none;
+    transition: border-color 0.2s;
+}
+
+#groupChatInput:focus {
+    border-color: #8338ec;
 }
 
 #groupChatInput::placeholder {
-    color: #888;
+    color: #666;
 }
 
 #groupSendBtn {
@@ -39,14 +47,22 @@
     color: #000000;
     border: none;
     border-radius: 20px;
-    padding: 10px 16px;
-    font-size: 14px;
+    padding: 12px 16px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
+    touch-action: manipulation;
+    min-height: 44px; /* iOS accessibility requirement */
+    white-space: nowrap;
 }
 
 #groupSendBtn:hover {
     background: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+#groupSendBtn:active {
+    transform: translateY(0);
 }
 
 .share-btn {
@@ -54,17 +70,26 @@
     color: #ffffff;
     border: 1px solid #ffffff;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
+    width: 44px; /* Better touch target */
+    height: 44px;
+    font-size: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    touch-action: manipulation;
+    transition: all 0.2s;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .share-btn:hover {
     background: #333;
+    border-color: #8338ec;
+    transform: translateY(-1px);
+}
+
+.share-btn:active {
+    transform: translateY(0);
 }
 </style>
 

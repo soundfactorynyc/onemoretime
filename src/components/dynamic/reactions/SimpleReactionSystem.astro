@@ -1,5 +1,5 @@
 ---
-// Simple Reaction System - Actually works!
+// Simple   <button class="reaction-btn" data-reaction="💗" data-tier="free">💗</button>eaction System - Actually works!
 ---
 
 <!-- Reaction Display Area -->
@@ -41,34 +41,42 @@
 
   .reaction-controls {
     position: fixed;
-    bottom: 50px;
+    bottom: 70px; /* Moved higher to avoid group chat overlap */
     left: 50%;
     transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 15px;
-    border-radius: 15px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(2, 1fr); /* Two rows for better mobile layout */
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 8px 12px;
+    border-radius: 16px;
     backdrop-filter: blur(10px);
     z-index: 1001;
+    max-width: calc(100vw - 40px); /* Better mobile margins */
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border for definition */
   }
 
   .reaction-btn, .money-btn, .nuclear-btn {
-    width: 35px;
-    height: 35px;
+    width: 44px; /* Larger touch targets for mobile */
+    height: 44px;
     border: none;
-    border-radius: 8px;
-    font-size: 12px;
+    border-radius: 12px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 2px;
+    margin: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px; /* iOS accessibility requirement */
   }
   
   .text-btn {
-    font-size: 10px;
+    font-size: 11px; /* Better mobile sizing */
     font-weight: bold;
     letter-spacing: 0.5px;
   }
@@ -81,7 +89,7 @@
     background: linear-gradient(135deg, #ffd700, #ff8c00);
     color: #000;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px; /* Slightly smaller for money buttons */
   }
 
   .nuclear-btn {
@@ -92,6 +100,13 @@
   }
 
   .reaction-btn:hover, .money-btn:hover, .nuclear-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(131, 56, 236, 0.3);
+  }
+  
+  .reaction-btn:active, .money-btn:active, .nuclear-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
     transform: scale(1.1);
   }
 
@@ -159,6 +174,23 @@
 
       this.reactions.push(reaction);
       this.createEffects(reaction);
+      
+      // Dispatch TikTok effects event
+      this.dispatchTikTokEffect(content, tier, value);
+    }
+    
+    dispatchTikTokEffect(content, tier, value) {
+      const eventData = {
+        type: tier === 'money' ? 'money' : tier === 'free' || tier === 'paid' ? 'emoji' : 'text',
+        value: value,
+        emoji: content,
+        text: content,
+        tier: tier
+      };
+      
+      document.dispatchEvent(new CustomEvent('tiktok-reaction', { 
+        detail: eventData 
+      }));
     }
 
     getSize(tier, value) {

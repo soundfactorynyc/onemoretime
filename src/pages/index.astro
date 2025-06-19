@@ -2,7 +2,6 @@
 // Sound Factory Grid - Main Hub
 import BlackGrid from '../components/BlackGrid.astro';
 import SimpleReactionSystem from '../components/dynamic/reactions/SimpleReactionSystem.astro';
-import LiveChatSupport from '../components/LiveChatSupport.astro';
 import SimpleGroupChat from '../components/SimpleGroupChat.astro';
 ---
 
@@ -10,7 +9,7 @@ import SimpleGroupChat from '../components/SimpleGroupChat.astro';
 <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Harmony System - Sound Factory NYC</title>
     
     <style>
@@ -29,11 +28,36 @@ import SimpleGroupChat from '../components/SimpleGroupChat.astro';
             color: #ffffff;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            /* True mobile-first: no max-width restriction */
         }
         
         /* Prevent pull-to-refresh on mobile */
         body {
             overscroll-behavior-y: none;
+        }
+
+        /* Remove unnecessary media query for mobile-first */
+        .mobile-safe-area {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Mobile-first amazing animations */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Beautiful gradient background for amazing mobile experience */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(131, 56, 236, 0.03) 0%, rgba(0, 0, 0, 1) 70%);
+            z-index: -1;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -47,9 +71,6 @@ import SimpleGroupChat from '../components/SimpleGroupChat.astro';
     
     <!-- SIMPLE REACTION SYSTEM - Working reactions! -->
     <SimpleReactionSystem />
-    
-    <!-- LIVE CHAT SUPPORT -->
-    <LiveChatSupport />
 
     <!-- SIMPLE GROUP CHAT -->
     <SimpleGroupChat />
