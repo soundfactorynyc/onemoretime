@@ -1,9 +1,10 @@
 ---
-// Sound Factory NYC - TikTok Stream with Advanced Player
+// Sound Factory NYC - Three-Mode Stream Platform
 import BlackGrid from '../components/BlackGrid.astro';
 import SimpleReactionSystem from '../components/dynamic/reactions/SimpleReactionSystem.astro';
 import SimpleGroupChat from '../components/SimpleGroupChat.astro';
 import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
+import ModeManager from '../components/ModeManager.jsx';
 ---
 
 <html lang="en">
@@ -54,6 +55,16 @@ import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
     </style>
 </head>
 <body>
+    <!-- MODE MANAGER - Handles three-way switching -->
+    <ModeManager client:load />
+
+    <!-- HOMEBASE CONTAINER (Always visible except in TikTok-only mode) -->
+    <div class="homebase-container" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 600;">
+        <!-- SIMPLE REACTION SYSTEM -->
+        <SimpleReactionSystem />
+        <!-- SIMPLE GROUP CHAT -->
+        <SimpleGroupChat />
+    </div>
 
 
     <!-- OVERLAY GRID SYSTEM -->
@@ -288,15 +299,9 @@ import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
     </div>
 
     <!-- NEXT LEVEL TIKTOK PLAYER (Full Screen) -->
-    <div style="position: fixed; top: 0; left: 0; right: 0; height: 100vh; z-index: 500;">
+    <div data-tiktok-player style="position: fixed; top: 0; left: 0; right: 0; height: 100vh; z-index: 500;">
         <NextLevelTikTokPlayer client:load />
     </div>
-    
-    <!-- SIMPLE REACTION SYSTEM - TikTok Style -->
-    <SimpleReactionSystem />
-
-    <!-- SIMPLE GROUP CHAT - TikTok Comments Style -->
-    <SimpleGroupChat />
 
     <script>
         // Initialize grid buttons
