@@ -7,6 +7,7 @@ const NextLevelTikTokPlayer = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [liked, setLiked] = useState(false);
   const [following, setFollowing] = useState(false);
+  const [agreeVote, setAgreeVote] = useState(null); // null, 'Y', or 'N'
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showEffects, setShowEffects] = useState(false);
   const [activeGesture, setActiveGesture] = useState(null);
@@ -298,6 +299,26 @@ const NextLevelTikTokPlayer = () => {
                     <span className="text-white text-[9px] font-medium">
                       {following ? 'Following' : 'Follow'}
                     </span>
+                  </button>
+
+                  {/* Y (Yes/Agree) Button */}
+                  <button
+                    onClick={() => setAgreeVote(agreeVote === 'Y' ? null : 'Y')}
+                    className={`px-2 py-1 rounded-full flex items-center gap-1 transition-all ${
+                      agreeVote === 'Y' ? 'bg-green-500' : 'bg-white/20 backdrop-blur-xl'
+                    }`}
+                  >
+                    <span className="text-white text-[9px] font-medium">Y</span>
+                  </button>
+
+                  {/* N (No/Disagree) Button */}
+                  <button
+                    onClick={() => setAgreeVote(agreeVote === 'N' ? null : 'N')}
+                    className={`px-2 py-1 rounded-full flex items-center gap-1 transition-all ${
+                      agreeVote === 'N' ? 'bg-red-500' : 'bg-white/20 backdrop-blur-xl'
+                    }`}
+                  >
+                    <span className="text-white text-[9px] font-medium">N</span>
                   </button>
                 </div>
 

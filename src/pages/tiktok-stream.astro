@@ -70,7 +70,7 @@ import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
             /* Three numbered buttons - TOP ALIGNED */
             .overlay-main-button {
                 position: fixed;
-                left: 15px;
+                left: 8px; /* Moved further left from 15px */
                 background: #000000;
                 color: #ffffff;
                 border: 1px solid #333333;
@@ -96,6 +96,52 @@ import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
             .overlay-main-button:active {
                 transform: scale(0.9);
                 background: #2a2a2a;
+            }
+
+            /* Special embedded button styling */
+            .overlay-embedded-special {
+                background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+                border: 2px solid #444444;
+                box-shadow: 
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+                    0 4px 8px rgba(0, 0, 0, 0.3);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .overlay-embedded-special::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+                animation: shimmer 3s infinite;
+                pointer-events: none;
+            }
+
+            .overlay-embedded-special:hover {
+                background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+                box-shadow: 
+                    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+                    0 6px 12px rgba(0, 0, 0, 0.4);
+                transform: scale(1.05);
+            }
+
+            .overlay-embedded-special:active {
+                background: linear-gradient(135deg, #0a0a0a, #2a2a2a);
+                box-shadow: 
+                    inset 0 2px 4px rgba(0, 0, 0, 0.8),
+                    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+                transform: scale(0.95);
+            }
+
+            @keyframes shimmer {
+                0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+                100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
             }
 
             /* Button Positions - Moved down from top */
@@ -213,10 +259,14 @@ import NextLevelTikTokPlayer from '../components/NextLevelTikTokPlayer.jsx';
             }
         </style>
 
-        <!-- Three Numbered Buttons -->
-        <button class="overlay-main-button overlay-button-1" onclick="overlayToggleGrid(1)">1</button>
-        <button class="overlay-main-button overlay-button-2" onclick="overlayToggleGrid(2)">2</button>
-        <button class="overlay-main-button overlay-button-3" onclick="overlayToggleGrid(3)">3</button>
+        <!-- Three Specialized Buttons -->
+        <button class="overlay-main-button overlay-button-1" onclick="overlayToggleGrid(1)">
+            <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.5px;">LIVE</span>
+        </button>
+        <button class="overlay-main-button overlay-button-2" onclick="overlayToggleGrid(2)">
+            <span style="font-size: 12px; font-weight: bold;">TT</span>
+        </button>
+        <button class="overlay-main-button overlay-button-3 overlay-embedded-special" onclick="overlayToggleGrid(3)">3</button>
 
         <!-- Grid Overlay 1 -->
         <div class="overlay-grid-overlay" id="overlay-grid-1">
